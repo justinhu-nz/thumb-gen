@@ -98,7 +98,7 @@
         <textarea id="tt-headline" maxlength="220" aria-label="Headline">YOUR NEWS HEADLINE
 GOES HERE</textarea>
         <div class="tt-row-2" style="margin-top:8px">
-          <div class="tt-field" style="margin:0"><label for="tt-font-style">Typeface</label><select id="tt-font-style"><option value="auto">Auto for logo</option><option value="sans">Black Sans</option><option value="serif">BBC Reith Serif</option></select></div>
+          <div class="tt-field" style="margin:0"><label for="tt-font-style">Typeface</label><select id="tt-font-style"><option value="auto">Auto for logo</option><option value="sans">Black Sans</option><option value="serif">BBC Reith Serif</option><option value="travels">TT Travels Next Bold</option></select></div>
           <div class="tt-field" style="margin:0"><label for="tt-serif-weight">Reith weight (BBC)</label><select id="tt-serif-weight"><option value="400">Regular</option><option value="500">Medium</option><option value="700" selected>Bold</option><option value="800">Extra Bold</option></select></div>
         </div>
         <div class="tt-field"><span class="tt-label">Text size</span>
@@ -206,7 +206,8 @@ GOES HERE</textarea>
     if(FONT_FALLBACK&&!FONT_FALLBACK.includes('__'))fontSources.push(`url("${FONT_FALLBACK}") format("truetype")`);
     const headlineFont=new FontFace('TVNZBlackSans',fontSources.join(', '),{weight:'700'});
     const serifFaces=[['400','regular'],['500','medium'],['700','bold'],['800','extra-bold']].map(([weight,file])=>new FontFace('TVNZReithSerif',`url("assets/fonts/bbc-reith-serif-${file}.ttf")`,{weight}));
-    Promise.allSettled([headlineFont,...serifFaces].map(face=>face.load())).then(results=>{results.forEach(result=>{if(result.status==='fulfilled')document.fonts.add(result.value)});calibrateFonts();renderThumbnail()});
+    const travelsFont=new FontFace('TVNZTravels','url("assets/fonts/tt-travels-next-bold.ttf")',{weight:'700'});
+    Promise.allSettled([headlineFont,travelsFont,...serifFaces].map(face=>face.load())).then(results=>{results.forEach(result=>{if(result.status==='fulfilled')document.fonts.add(result.value)});calibrateFonts();renderThumbnail()});
 
     const presets=[
       ['1News Black','one-news-black','#CC3333','#202227',1447,89,281,91],
@@ -231,10 +232,11 @@ GOES HERE</textarea>
     const canvas=root.querySelector('#tt-canvas'),ctx=canvas.getContext('2d');
     const clamp=(v,lo,hi)=>Math.max(lo,Math.min(hi,v));
     // Base font sizes chosen so cap height matches the Photoshop references (~97px for both faces).
-    let SANS_BASE=143,SERIF_BASE=136;
+    let SANS_BASE=143,SERIF_BASE=136,TRAVELS_BASE=137;
     function calibrateFonts(){const m=(spec)=>{ctx.font=spec;const met=ctx.measureText('H');return met.actualBoundingBoxAscent||0};
       const capSans=m('700 100px TVNZBlackSans');if(capSans>10)SANS_BASE=Math.round(100*97/capSans);
-      const capSerif=m('700 100px TVNZReithSerif');if(capSerif>10)SERIF_BASE=Math.round(100*97/capSerif)}
+      const capSerif=m('700 100px TVNZReithSerif');if(capSerif>10)SERIF_BASE=Math.round(100*97/capSerif);
+      const capTravels=m('700 100px TVNZTravels');if(capTravels>10)TRAVELS_BASE=Math.round(100*97/capTravels)}
 
     function get(obj,path){return path.split('.').reduce((v,k)=>v[k],obj)}
     function set(obj,path,value){const a=path.split('.');const last=a.pop();a.reduce((v,k)=>v[k],obj)[last]=value}
@@ -259,14 +261,16 @@ GOES HERE</textarea>
       const shade=ctx.createLinearGradient(0,0,1280,0);shade.addColorStop(0,'rgba(0,0,0,.38)');shade.addColorStop(.62,'rgba(0,0,0,.04)');shade.addColorStop(1,'rgba(0,0,0,0)');ctx.fillStyle=shade;ctx.fillRect(0,0,W,H);
       const lower=ctx.createLinearGradient(0,540,0,H);lower.addColorStop(0,'rgba(0,0,0,0)');lower.addColorStop(1,'rgba(0,0,0,.2)');ctx.fillStyle=lower;ctx.fillRect(0,540,W,540);
       const colour=currentColour();const lines=state.headline.replace(/\r/g,'').split('\n').slice(0,4);while(lines.length&&lines[lines.length-1]==='')lines.pop();
-      const useSerif=state.fontStyle==='serif'||(state.fontStyle==='auto'&&presets[state.logo].asset==='bbc');
+      const asset=presets[state.logo].asset;
+      const font=state.fontStyle==='auto'?(asset==='bbc'?'serif':asset==='business-breakfast'?'travels':'sans'):state.fontStyle;
+      const useSerif=font==='serif';
       // Geometry measured from the Photoshop reference thumbnails (1920x1080):
       // bars touch (pitch == bar height == 137), block bottom 997, bar left 183,
       // text left 195, baseline 112 below bar top, ~24px bar padding right of text.
-      const ts=state.textSize/100;const fontPx=(useSerif?SERIF_BASE:SANS_BASE)*ts;
+      const ts=state.textSize/100;const fontPx=(font==='serif'?SERIF_BASE:font==='travels'?TRAVELS_BASE:SANS_BASE)*ts;
       const barH=137*ts;const pitch=137*ts*(state.lineGap/100);const baselineOff=112*ts;
       const blockBottom=997+state.textY;
-      ctx.font=useSerif?`${state.serifWeight} ${fontPx}px TVNZReithSerif, Georgia, serif`:`700 ${fontPx}px TVNZBlackSans, "Arial Black", Arial, sans-serif`;ctx.textBaseline='alphabetic';ctx.textAlign='left';
+      ctx.font=useSerif?`${state.serifWeight} ${fontPx}px TVNZReithSerif, Georgia, serif`:font==='travels'?`700 ${fontPx}px TVNZTravels, "Arial Black", Arial, sans-serif`:`700 ${fontPx}px TVNZBlackSans, "Arial Black", Arial, sans-serif`;ctx.textBaseline='alphabetic';ctx.textAlign='left';
       if('letterSpacing'in ctx)ctx.letterSpacing=`${(state.tracking/100*fontPx).toFixed(2)}px`;
       const bright=/^#(?:fff(?:fff)?|f[89a-f][0-9a-f]{4})$/i.test(colour);const textColour=state.textManual?state.textColour:(bright?'#11100B':'#FFFFFF');
       const placed=lines.map((text,i)=>{const slot=4-lines.length+i;const barTop=blockBottom-barH-pitch*(lines.length-1-i);return {text,barTop,tw:ctx.measureText(text).width,lc:state.lines[slot]}});
