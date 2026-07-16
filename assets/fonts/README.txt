@@ -1,0 +1,1 @@
+Black Sans and BBC Reith Serif font files are sourced from website/dropped in new stuff/fonts. The generator headline uses black-sans-bold.ttf. Re-run tools/build-generator.mjs after replacing source fonts.
