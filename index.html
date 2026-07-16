@@ -88,6 +88,8 @@
           <button id="tt-colour-b" aria-pressed="false"><span class="tt-swatch" data-swatch="b"></span>Colour B</button>
           <button id="tt-colour-custom" aria-pressed="false">Custom</button>
           <input id="tt-manual-colour" type="color" value="#cc3333" aria-label="Custom bar colour" class="tt-hidden">
+          <button id="tt-text-colour-on" aria-pressed="false" title="Override the automatic white/black headline colour">Text</button>
+          <input id="tt-text-colour" type="color" value="#ffffff" aria-label="Headline text colour" class="tt-hidden">
         </div>
       </section>
 
@@ -225,7 +227,7 @@ GOES HERE</textarea>
     ].map((p,i)=>({name:p[0],asset:p[1],a:p[2],b:p[3],x:p[4],y:p[5],w:p[6],h:p[7],optionB:p[2]!==p[3],index:i}));
     const images={};
     Object.entries(LOGO_DATA).forEach(([k,v])=>{const img=new Image();img.src=v;img.onload=renderThumbnail;images[k]=img});
-    const state={img1:{image:null,x:0,y:0,scale:100},img2:{image:null,x:0,y:0,scale:100},image2On:false,split:0,splitAngle:0,textSize:100,textX:0,textY:0,lineGap:100,tracking:-1,fontStyle:'auto',serifWeight:'700',headline:'YOUR NEWS HEADLINE\nGOES HERE',logo:0,logoScale:100,logoX:0,logoY:0,colourOption:0,manual:false,manualColour:'#cc3333',colourGuide:false,placementGuide:false,lines:[0,1,2,3].map(()=>({on:true,left:0,right:0}))};
+    const state={img1:{image:null,x:0,y:0,scale:100},img2:{image:null,x:0,y:0,scale:100},image2On:false,split:0,splitAngle:0,textSize:100,textX:0,textY:0,lineGap:100,tracking:-1,fontStyle:'auto',serifWeight:'700',headline:'YOUR NEWS HEADLINE\nGOES HERE',logo:0,logoScale:100,logoX:0,logoY:0,colourOption:0,manual:false,manualColour:'#cc3333',colourGuide:false,placementGuide:false,textManual:false,textColour:'#ffffff',lines:[0,1,2,3].map(()=>({on:true,left:0,right:0}))};
     const canvas=root.querySelector('#tt-canvas'),ctx=canvas.getContext('2d');
     const clamp=(v,lo,hi)=>Math.max(lo,Math.min(hi,v));
     // Base font sizes chosen so cap height matches the Photoshop references (~97px for both faces).
@@ -266,7 +268,7 @@ GOES HERE</textarea>
       const blockBottom=997+state.textY;
       ctx.font=useSerif?`${state.serifWeight} ${fontPx}px TVNZReithSerif, Georgia, serif`:`700 ${fontPx}px TVNZBlackSans, "Arial Black", Arial, sans-serif`;ctx.textBaseline='alphabetic';ctx.textAlign='left';
       if('letterSpacing'in ctx)ctx.letterSpacing=`${(state.tracking/100*fontPx).toFixed(2)}px`;
-      const bright=/^#(?:fff(?:fff)?|f[89a-f][0-9a-f]{4})$/i.test(colour);const textColour=bright?'#11100B':'#FFFFFF';
+      const bright=/^#(?:fff(?:fff)?|f[89a-f][0-9a-f]{4})$/i.test(colour);const textColour=state.textManual?state.textColour:(bright?'#11100B':'#FFFFFF');
       const placed=lines.map((text,i)=>{const slot=4-lines.length+i;const barTop=blockBottom-barH-pitch*(lines.length-1-i);return {text,barTop,tw:ctx.measureText(text).width,lc:state.lines[slot]}});
       const textLeft=195+state.textX,barLeft=183+state.textX;
       // bars first, then all text: overlapping bars merge into one block without covering the previous line's text
@@ -304,7 +306,10 @@ GOES HERE</textarea>
     root.querySelector('#tt-colour-b').onclick=()=>{if(!presets[state.logo].optionB)return;state.manual=false;state.colourOption=1;updateColourButtons();renderThumbnail()};
     root.querySelector('#tt-colour-custom').onclick=()=>{state.manual=true;state.manualColour=root.querySelector('#tt-manual-colour').value;updateColourButtons();renderThumbnail()};
     root.querySelector('#tt-manual-colour').addEventListener('input',e=>{state.manualColour=e.target.value;renderThumbnail()});
-    updateSwatches();updateColourButtons();
+    function updateTextColourButton(){root.querySelector('#tt-text-colour-on').setAttribute('aria-pressed',String(state.textManual));root.querySelector('#tt-text-colour').classList.toggle('tt-hidden',!state.textManual)}
+    root.querySelector('#tt-text-colour-on').onclick=()=>{state.textManual=!state.textManual;if(state.textManual)state.textColour=root.querySelector('#tt-text-colour').value;updateTextColourButton();renderThumbnail()};
+    root.querySelector('#tt-text-colour').addEventListener('input',e=>{state.textColour=e.target.value;renderThumbnail()});
+    updateSwatches();updateColourButtons();updateTextColourButton();
 
     ['colourGuide','placementGuide'].forEach(k=>root.querySelector(`#tt-${k.replace(/[A-Z]/g,m=>'-'+m.toLowerCase())}`).addEventListener('change',e=>{state[k]=e.target.checked;renderThumbnail()}));
     root.querySelectorAll('[data-line-on]').forEach(el=>el.addEventListener('change',()=>{state.lines[+el.dataset.lineOn].on=el.checked;renderThumbnail()}));
@@ -317,9 +322,9 @@ GOES HERE</textarea>
     // double-click any slider to restore its default value
     root.querySelectorAll('input[type="range"]').forEach(el=>{if(!el.title)el.title='Double-click to reset';el.addEventListener('dblclick',()=>{el.value=el.defaultValue;el.dispatchEvent(new Event('input',{bubbles:true}))})});
     root.querySelector('#tt-reset-all').onclick=()=>{
-      state.img1={image:null,x:0,y:0,scale:100};state.img2={image:null,x:0,y:0,scale:100};state.image2On=false;state.split=0;state.splitAngle=0;Object.assign(state,{textSize:100,textX:0,textY:0,lineGap:100,tracking:-1,fontStyle:'auto',serifWeight:'700',headline:'YOUR NEWS HEADLINE\nGOES HERE',logo:0,logoScale:100,logoX:0,logoY:0,colourOption:0,manual:false,manualColour:'#cc3333',colourGuide:false,placementGuide:false});state.lines.forEach(l=>Object.assign(l,{on:true,left:0,right:0}));
+      state.img1={image:null,x:0,y:0,scale:100};state.img2={image:null,x:0,y:0,scale:100};state.image2On=false;state.split=0;state.splitAngle=0;Object.assign(state,{textSize:100,textX:0,textY:0,lineGap:100,tracking:-1,fontStyle:'auto',serifWeight:'700',headline:'YOUR NEWS HEADLINE\nGOES HERE',logo:0,logoScale:100,logoX:0,logoY:0,colourOption:0,manual:false,manualColour:'#cc3333',colourGuide:false,placementGuide:false,textManual:false,textColour:'#ffffff'});state.lines.forEach(l=>Object.assign(l,{on:true,left:0,right:0}));
       root.querySelectorAll('input[type="file"]').forEach(el=>el.value='');root.querySelector('#tt-headline').value=state.headline;root.querySelector('#tt-font-style').value='auto';root.querySelector('#tt-serif-weight').value='700';root.querySelector('#tt-image2-on').checked=false;root.querySelector('#tt-image2-controls').classList.add('tt-hidden');root.querySelector('#tt-img2-fine').classList.add('tt-hidden');root.querySelector('#tt-manual-colour').value='#cc3333';root.querySelector('#tt-colour-guide').checked=false;root.querySelector('#tt-placement-guide').checked=false;root.querySelector('#tt-status').textContent='Drop an image on the preview · drag anything to move it · scroll to resize.';
-      presetGrid.querySelectorAll('button').forEach((b,j)=>b.setAttribute('aria-pressed',String(j===0)));updateSwatches();updateColourButtons();
+      presetGrid.querySelectorAll('button').forEach((b,j)=>b.setAttribute('aria-pressed',String(j===0)));root.querySelector('#tt-text-colour').value='#ffffff';updateSwatches();updateColourButtons();updateTextColourButton();
       root.querySelectorAll('[data-bind]').forEach(el=>{el.value=get(state,el.dataset.bind);root.querySelectorAll(`[data-value="${el.dataset.bind}"]`).forEach(v=>v.textContent=el.value)});syncControls(['textSize']);root.querySelectorAll('[data-line-on]').forEach(el=>el.checked=true);root.querySelectorAll('[data-line-left],[data-line-right]').forEach(el=>el.value=0);renderThumbnail();
     };
 
