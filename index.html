@@ -4,211 +4,275 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>TVNZ Thumbnail Generator</title>
-<style>:root{color-scheme:dark;--background:#111214;--foreground:#f5f5f5;--card:#1a1c20;--card-foreground:#f5f5f5;--muted:#292c31;--muted-foreground:#aeb4bd;--border:#3b3f46;--primary:#f5f5f5;--primary-foreground:#101114}body{margin:0;background:var(--background);padding:18px;max-width:1500px;margin-inline:auto}</style>
+<style>:root{color-scheme:dark;--background:#111214;--foreground:#f5f5f5}body{margin:0;background:var(--background);padding:18px;max-width:1500px;margin-inline:auto}@media(max-width:600px){body{padding:0}}</style>
 </head>
 <body>
 <div id="tvnz-thumb-tool">
   <style>
-    #tvnz-thumb-tool{--tt-bg:#0d0f12;--tt-panel:#171a20;--tt-panel-2:#1d2128;--tt-fg:#f4f6f8;--tt-muted-fg:#aeb5c0;--tt-border:#343a44;--tt-accent:#ff4b45;--tt-accent-hover:#ff625d;--tt-control:#11141a;--tt-focus:#72a7ff;color-scheme:dark;color:var(--tt-fg);background:var(--tt-bg);padding:18px;border-radius:14px;font:14px/1.4 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;width:100%;box-sizing:border-box;box-shadow:0 18px 50px rgba(0,0,0,.22)}
+    #tvnz-thumb-tool{--tt-bg:#0d0f12;--tt-panel:#171a20;--tt-panel-2:#1d2128;--tt-fg:#f4f6f8;--tt-muted-fg:#aeb5c0;--tt-border:#343a44;--tt-accent:#ff4b45;--tt-accent-hover:#ff625d;--tt-control:#11141a;--tt-focus:#72a7ff;--tt-warn:#ffb86b;color-scheme:dark;color:var(--tt-fg);background:var(--tt-bg);padding:18px;border-radius:14px;font:14px/1.4 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;width:100%;box-sizing:border-box;box-shadow:0 18px 50px rgba(0,0,0,.22)}
     #tvnz-thumb-tool *{box-sizing:border-box}
+    #tvnz-thumb-tool [hidden],#tvnz-thumb-tool .tt-hidden{display:none!important}
     #tvnz-thumb-tool .tt-appbar{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid var(--tt-border)}
     #tvnz-thumb-tool .tt-brand{display:grid;gap:2px}
     #tvnz-thumb-tool .tt-brand strong{font-size:18px;font-weight:650;letter-spacing:-.02em}
     #tvnz-thumb-tool .tt-brand span{color:var(--tt-muted-fg);font-size:12px}
-    #tvnz-thumb-tool .tt-tabs,#tvnz-thumb-tool .tt-actions,#tvnz-thumb-tool .tt-inline{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-    #tvnz-thumb-tool .tt-tabs{background:var(--tt-panel);padding:4px;border-radius:10px;border:1px solid var(--tt-border)}
+    #tvnz-thumb-tool .tt-tabs,#tvnz-thumb-tool .tt-inline{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+    #tvnz-thumb-tool .tt-tabs{background:var(--tt-panel);padding:4px;border-radius:10px;border:1px solid var(--tt-border);gap:4px}
+    #tvnz-thumb-tool .tt-tabs button{border-color:transparent;background:transparent}
+    #tvnz-thumb-tool .tt-tabs button:hover{background:var(--tt-panel-2)}
+    #tvnz-thumb-tool .tt-tabs button[aria-selected="true"]{background:var(--tt-fg);color:#111318;border-color:var(--tt-fg)}
     #tvnz-thumb-tool button,#tvnz-thumb-tool input,#tvnz-thumb-tool select,#tvnz-thumb-tool textarea{font:inherit;color:var(--tt-fg)}
-    #tvnz-thumb-tool button{border:1px solid var(--tt-border);background:var(--tt-panel-2);border-radius:8px;padding:8px 12px;cursor:pointer;transition:background .15s,border-color .15s,transform .15s}
+    #tvnz-thumb-tool button{border:1px solid var(--tt-border);background:var(--tt-panel-2);border-radius:8px;padding:8px 12px;cursor:pointer;transition:background .12s,border-color .12s}
     #tvnz-thumb-tool button:hover{background:#292e37;border-color:#4b5360}
     #tvnz-thumb-tool button:active{transform:translateY(1px)}
-    #tvnz-thumb-tool button[aria-selected="true"]{background:var(--tt-fg);color:#111318;border-color:var(--tt-fg)}
-    #tvnz-thumb-tool .tt-primary{background:var(--tt-accent);color:#fff;border-color:var(--tt-accent)}
+    #tvnz-thumb-tool button:disabled{opacity:.4;cursor:not-allowed;transform:none}
+    #tvnz-thumb-tool .tt-primary{background:var(--tt-accent);color:#fff;border-color:var(--tt-accent);font-weight:600}
     #tvnz-thumb-tool .tt-primary:hover{background:var(--tt-accent-hover);border-color:var(--tt-accent-hover)}
-    #tvnz-thumb-tool input[type="text"],#tvnz-thumb-tool input[type="number"],#tvnz-thumb-tool select,#tvnz-thumb-tool textarea,#tvnz-thumb-tool input[type="file"]{width:100%;border:1px solid var(--tt-border);border-radius:8px;background:var(--tt-control);padding:8px 9px}
-    #tvnz-thumb-tool input[type="file"]{padding:6px;color:var(--tt-muted-fg)}
-    #tvnz-thumb-tool input[type="file"]::file-selector-button{border:0;border-radius:6px;background:var(--tt-panel-2);color:var(--tt-fg);padding:7px 10px;margin-right:9px;cursor:pointer}
-    #tvnz-thumb-tool textarea{min-height:80px;resize:vertical}
-    #tvnz-thumb-tool input:focus-visible,#tvnz-thumb-tool select:focus-visible,#tvnz-thumb-tool textarea:focus-visible,#tvnz-thumb-tool button:focus-visible{outline:2px solid var(--tt-focus);outline-offset:2px}
+    #tvnz-thumb-tool .tt-quiet{background:transparent;border-color:transparent;color:var(--tt-muted-fg);padding:6px 8px}
+    #tvnz-thumb-tool .tt-quiet:hover{color:var(--tt-fg);background:var(--tt-panel-2)}
+    #tvnz-thumb-tool input[type="text"],#tvnz-thumb-tool input[type="number"],#tvnz-thumb-tool select,#tvnz-thumb-tool textarea{width:100%;border:1px solid var(--tt-border);border-radius:8px;background:var(--tt-control);padding:8px 9px}
+    #tvnz-thumb-tool textarea{min-height:84px;resize:vertical;line-height:1.35}
+    #tvnz-thumb-tool input:focus-visible,#tvnz-thumb-tool select:focus-visible,#tvnz-thumb-tool textarea:focus-visible,#tvnz-thumb-tool button:focus-visible,#tvnz-thumb-tool canvas:focus-visible{outline:2px solid var(--tt-focus);outline-offset:2px}
+    #tvnz-thumb-tool canvas:focus{outline:none}
     #tvnz-thumb-tool input[type="range"]{width:100%;accent-color:var(--tt-accent)}
-    #tvnz-thumb-tool input[type="checkbox"],#tvnz-thumb-tool input[type="radio"]{accent-color:var(--tt-accent)}
-    #tvnz-thumb-tool input[type="color"]{width:44px;height:34px;border:1px solid var(--tt-border);background:var(--tt-control);padding:3px;border-radius:7px}
+    #tvnz-thumb-tool input[type="checkbox"]{accent-color:var(--tt-accent)}
+    #tvnz-thumb-tool input[type="color"]{width:40px;height:32px;border:1px solid var(--tt-border);background:var(--tt-control);padding:3px;border-radius:7px;cursor:pointer}
+    #tvnz-thumb-tool input:disabled{opacity:.35}
     #tvnz-thumb-tool .tt-layout{display:grid;grid-template-columns:minmax(300px,360px) minmax(0,1fr);gap:18px;align-items:start}
-    #tvnz-thumb-tool .tt-controls{display:grid;gap:10px}
+    #tvnz-thumb-tool .tt-controls{display:grid;grid-template-columns:minmax(0,1fr);gap:10px;min-width:0}
     #tvnz-thumb-tool .tt-card,#tvnz-thumb-tool details{background:var(--tt-panel);border:1px solid var(--tt-border);border-radius:10px;padding:11px 12px}
     #tvnz-thumb-tool .tt-card>h3{margin:0 0 9px;font-size:14px;font-weight:650}
     #tvnz-thumb-tool summary{font-weight:650;cursor:pointer;margin:-2px 0 9px;list-style-position:inside}
     #tvnz-thumb-tool details:not([open]) summary{margin-bottom:-2px}
-    #tvnz-thumb-tool .tt-field{display:grid;gap:5px;margin:9px 0}
+    #tvnz-thumb-tool .tt-field{display:grid;grid-template-columns:minmax(0,1fr);gap:5px;margin:9px 0}
     #tvnz-thumb-tool .tt-field>label,#tvnz-thumb-tool .tt-label{color:var(--tt-muted-fg);font-size:12px;font-weight:550}
-    #tvnz-thumb-tool .tt-check{display:flex;gap:7px;align-items:center}
-    #tvnz-thumb-tool .tt-check input{width:auto}
-    #tvnz-thumb-tool .tt-hint{color:var(--tt-muted-fg);font-size:12px;margin:7px 0 0}
-    #tvnz-thumb-tool .tt-canvas-wrap{background:var(--tt-panel);border:1px solid var(--tt-border);border-radius:12px;padding:10px;overflow:hidden;box-shadow:0 12px 30px rgba(0,0,0,.2)}
-    #tvnz-thumb-tool [data-panel="thumbnail"]>.tt-canvas-wrap{position:sticky;top:12px}
+    #tvnz-thumb-tool .tt-field>label span,#tvnz-thumb-tool .tt-field>label output{color:var(--tt-fg)}
+    #tvnz-thumb-tool .tt-check{display:flex;gap:7px;align-items:center;cursor:pointer}
+    #tvnz-thumb-tool .tt-hint{color:var(--tt-muted-fg);font-size:12px;margin:8px 0 0}
+    #tvnz-thumb-tool .tt-warn{color:var(--tt-warn);background:rgba(255,184,107,.1);border:1px solid rgba(255,184,107,.35);border-radius:8px;font-size:12.5px;padding:7px 10px;margin:8px 0 0}
+    #tvnz-thumb-tool .tt-preview{display:grid;gap:0;min-width:0}
+    #tvnz-thumb-tool [data-panel="thumbnail"]>.tt-preview{position:sticky;top:12px}
+    #tvnz-thumb-tool .tt-canvas-wrap{background:var(--tt-panel);border:1px solid var(--tt-border);border-radius:12px;padding:10px;overflow:hidden;box-shadow:0 12px 30px rgba(0,0,0,.2);transition:border-color .12s}
+    #tvnz-thumb-tool.tt-dragging [data-panel]:not(.tt-hidden) .tt-canvas-wrap{border-color:var(--tt-focus);box-shadow:0 0 0 2px var(--tt-focus)}
     #tvnz-thumb-tool canvas{display:block;width:100%;height:auto;background:#202227;touch-action:none;cursor:grab;border-radius:7px}
-    #tvnz-thumb-tool canvas:active{cursor:grabbing}
-    #tvnz-thumb-tool .tt-meta{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;color:var(--tt-muted-fg);font-size:12px;margin-top:9px;padding:0 2px;align-items:center}
-    #tvnz-thumb-tool .tt-hidden{display:none!important}
-    #tvnz-thumb-tool .tt-line-grid{display:grid;grid-template-columns:52px 1fr 1fr;gap:6px 7px;align-items:center;margin-top:10px}
+    #tvnz-thumb-tool canvas.tt-grabbing{cursor:grabbing}
+    #tvnz-thumb-tool .tt-meta{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;color:var(--tt-muted-fg);font-size:12px;margin-top:8px;padding:0 2px;align-items:center}
+    #tvnz-thumb-tool .tt-zoom{display:flex;align-items:center;gap:6px;flex:1;min-width:120px;max-width:220px}
+    #tvnz-thumb-tool .tt-zoom output{min-width:38px;text-align:right}
+    #tvnz-thumb-tool .tt-export{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:10px}
+    #tvnz-thumb-tool .tt-export input{flex:1;min-width:140px}
+    #tvnz-thumb-tool .tt-export button{white-space:nowrap}
+    #tvnz-thumb-tool .tt-dims{color:var(--tt-muted-fg);font-size:12px;white-space:nowrap}
+    #tvnz-thumb-tool .tt-line-grid{display:grid;grid-template-columns:62px 1fr 1fr;gap:6px 7px;align-items:center;margin-top:10px}
     #tvnz-thumb-tool .tt-line-grid input[type="number"]{padding:5px 6px}
     #tvnz-thumb-tool .tt-swatch{width:15px;height:15px;border-radius:4px;border:1px solid rgba(255,255,255,.28);display:inline-block;flex:none}
-    #tvnz-thumb-tool .tt-meta button{padding:5px 11px;font-size:12px}
-    #tvnz-thumb-tool .tt-hero-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-    #tvnz-thumb-tool .tt-hero-grid .tt-mobile{max-width:220px}
+    #tvnz-thumb-tool .tt-hero-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(150px,230px);gap:10px;align-items:start}
+    #tvnz-thumb-tool .tt-hero-wide{display:grid;gap:10px;min-width:0}
     #tvnz-thumb-tool .tt-preset-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
     #tvnz-thumb-tool .tt-preset-grid button{display:flex;align-items:center;gap:7px;padding:7px 9px;font-size:12.5px;text-align:left;line-height:1.15}
     #tvnz-thumb-tool .tt-preset-grid button[aria-pressed="true"]{background:var(--tt-fg);color:#111318;border-color:var(--tt-fg)}
-    #tvnz-thumb-tool .tt-colour-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px}
+    #tvnz-thumb-tool .tt-colour-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:6px}
     #tvnz-thumb-tool .tt-colour-row button{display:flex;align-items:center;gap:7px;padding:6px 10px;font-size:12.5px}
-    #tvnz-thumb-tool .tt-colour-row button[aria-pressed="true"]{border-color:var(--tt-fg);background:#2b303a}
+    #tvnz-thumb-tool .tt-colour-row button[aria-pressed="true"]{border-color:var(--tt-fg);background:#2b303a;box-shadow:inset 0 0 0 1px var(--tt-fg)}
+    #tvnz-thumb-tool .tt-sub{margin-top:12px}
     #tvnz-thumb-tool .tt-stepper{display:flex;align-items:center;gap:6px}
     #tvnz-thumb-tool .tt-stepper button{padding:5px 12px;font-weight:700}
     #tvnz-thumb-tool .tt-stepper output{min-width:52px;text-align:center;color:var(--tt-muted-fg);font-size:12.5px}
-    #tvnz-thumb-tool .tt-row-2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-    @media(max-width:900px){#tvnz-thumb-tool{padding:12px;box-shadow:none}#tvnz-thumb-tool .tt-appbar{align-items:flex-start;flex-direction:column}#tvnz-thumb-tool .tt-layout{grid-template-columns:1fr}#tvnz-thumb-tool [data-panel="thumbnail"]>.tt-canvas-wrap{position:static;order:-1}#tvnz-thumb-tool .tt-hero-grid{grid-template-columns:1fr}}
-    @media(max-width:480px){#tvnz-thumb-tool .tt-tabs{width:100%}#tvnz-thumb-tool .tt-tabs button{flex:1;padding-inline:7px}#tvnz-thumb-tool .tt-line-grid{grid-template-columns:44px 1fr 1fr}#tvnz-thumb-tool .tt-preset-grid{grid-template-columns:1fr}}
+    #tvnz-thumb-tool .tt-row-2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+    #tvnz-thumb-tool .tt-row-2 .tt-field{margin:0}
+    #tvnz-thumb-tool .tt-file{min-width:0;display:flex;align-items:center;gap:8px;padding:5px;border:1px dashed var(--tt-border);border-radius:8px;background:var(--tt-control)}
+    #tvnz-thumb-tool .tt-file-pick{padding:6px 10px;font-size:12.5px;white-space:nowrap}
+    #tvnz-thumb-tool .tt-file-name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--tt-muted-fg);font-size:12.5px}
+    #tvnz-thumb-tool .tt-file.tt-has-image .tt-file-name{color:var(--tt-fg)}
+    #tvnz-thumb-tool .tt-file-clear{padding:4px 9px;font-size:12px}
+    #tvnz-thumb-tool .tt-toast{position:fixed;left:50%;bottom:22px;transform:translate(-50%,12px);background:#232830;color:var(--tt-fg);border:1px solid var(--tt-border);border-radius:10px;padding:9px 14px;font-size:13px;max-width:min(560px,calc(100vw - 32px));box-shadow:0 10px 30px rgba(0,0,0,.4);opacity:0;pointer-events:none;transition:opacity .18s,transform .18s;z-index:10}
+    #tvnz-thumb-tool .tt-toast.tt-show{opacity:1;transform:translate(-50%,0)}
+    #tvnz-thumb-tool .tt-toast[data-tone="error"]{border-color:var(--tt-accent);background:#3a1d1f}
+    #tvnz-thumb-tool kbd{font:11px ui-monospace,SFMono-Regular,Menlo,monospace;border:1px solid var(--tt-border);border-bottom-width:2px;border-radius:4px;padding:0 4px;color:var(--tt-fg)}
+    @media(max-width:900px){#tvnz-thumb-tool{padding:12px;box-shadow:none}#tvnz-thumb-tool .tt-appbar{align-items:flex-start;flex-direction:column}#tvnz-thumb-tool .tt-layout{grid-template-columns:1fr}#tvnz-thumb-tool [data-panel="thumbnail"]>.tt-preview{position:static}#tvnz-thumb-tool .tt-preview{order:-1}}
+    @media(max-width:600px){#tvnz-thumb-tool{border-radius:0}#tvnz-thumb-tool .tt-hero-grid{grid-template-columns:1fr}#tvnz-thumb-tool .tt-hero-grid .tt-mobile{max-width:230px}}
+    @media(max-width:480px){#tvnz-thumb-tool .tt-tabs{width:100%}#tvnz-thumb-tool .tt-tabs button{flex:1;padding-inline:7px}#tvnz-thumb-tool .tt-preset-grid{grid-template-columns:1fr}}
   </style>
 
   <header class="tt-appbar">
     <div class="tt-brand"><strong>TVNZ+ Image Builder</strong><span>Offline production utility</span></div>
-    <nav class="tt-tabs" aria-label="Generator mode">
-      <button data-tab="thumbnail" aria-selected="true">Thumbnail</button>
-      <button data-tab="quickplay" aria-selected="false">Quick Play</button>
-      <button data-tab="banner" aria-selected="false">Banner</button>
+    <nav class="tt-tabs" role="tablist" aria-label="Generator mode">
+      <button role="tab" data-tab="thumbnail" aria-selected="true">Thumbnail</button>
+      <button role="tab" data-tab="quickplay" aria-selected="false">Quick Play</button>
+      <button role="tab" data-tab="banner" aria-selected="false">Banner</button>
     </nav>
   </header>
 
-  <section data-panel="thumbnail" class="tt-layout">
+  <section data-panel="thumbnail" class="tt-layout" role="tabpanel">
     <div class="tt-controls">
       <section class="tt-card">
-        <h3>Show &amp; colour</h3>
+        <h3>Show</h3>
         <div class="tt-preset-grid" id="tt-preset-grid" role="group" aria-label="Show logo"></div>
-        <div class="tt-colour-row" role="group" aria-label="Bar colour">
-          <button id="tt-colour-a" aria-pressed="true"><span class="tt-swatch" data-swatch="a"></span>Colour A</button>
-          <button id="tt-colour-b" aria-pressed="false"><span class="tt-swatch" data-swatch="b"></span>Colour B</button>
-          <button id="tt-colour-custom" aria-pressed="false">Custom</button>
-          <input id="tt-manual-colour" type="color" value="#cc3333" aria-label="Custom bar colour" class="tt-hidden">
-          <button id="tt-text-colour-on" aria-pressed="false" title="Override the automatic white/black headline colour">Text</button>
+        <div class="tt-sub"><span class="tt-label">Bar colour</span>
+          <div class="tt-colour-row" role="group" aria-label="Bar colour">
+            <button id="tt-colour-a" aria-pressed="true"><span class="tt-swatch" data-swatch="a"></span>Colour A</button>
+            <button id="tt-colour-b" aria-pressed="false"><span class="tt-swatch" data-swatch="b"></span>Colour B</button>
+            <button id="tt-colour-custom" aria-pressed="false">Custom</button>
+            <input id="tt-manual-colour" type="color" value="#cc3333" aria-label="Custom bar colour" class="tt-hidden">
+          </div>
+        </div>
+        <div class="tt-colour-row tt-sub">
+          <label class="tt-check"><input id="tt-text-colour-on" type="checkbox"> Custom text colour</label>
           <input id="tt-text-colour" type="color" value="#ffffff" aria-label="Headline text colour" class="tt-hidden">
+          <span class="tt-hint" id="tt-text-auto" style="margin:0"></span>
         </div>
       </section>
 
       <section class="tt-card">
         <h3>Headline</h3>
-        <textarea id="tt-headline" maxlength="220" aria-label="Headline">YOUR NEWS HEADLINE
-GOES HERE</textarea>
-        <div class="tt-row-2" style="margin-top:8px">
-          <div class="tt-field" style="margin:0"><label for="tt-font-style">Typeface</label><select id="tt-font-style"><option value="auto">Auto for logo</option><option value="sans">Black Sans</option><option value="serif">BBC Reith Serif</option><option value="travels">TT Travels Next Bold</option></select></div>
-          <div class="tt-field" style="margin:0"><label for="tt-serif-weight">Reith weight (BBC)</label><select id="tt-serif-weight"><option value="400">Regular</option><option value="500">Medium</option><option value="700" selected>Bold</option><option value="800">Extra Bold</option></select></div>
+        <textarea id="tt-headline" maxlength="220" rows="3" aria-label="Headline" aria-describedby="tt-headline-hint">Your news headline
+goes here</textarea>
+        <p class="tt-hint" id="tt-headline-hint" style="margin-top:4px">Press <kbd>Enter</kbd> for a new line (up to 4 lines). Each line gets its own bar.</p>
+        <div class="tt-row-2">
+          <div class="tt-field"><label for="tt-font-style">Typeface</label><select id="tt-font-style"><option value="auto">Auto</option><option value="sans">Black Sans</option><option value="serif">BBC Reith Serif</option><option value="travels">TT Travels Next</option></select></div>
+          <div class="tt-field" id="tt-serif-weight-field"><label for="tt-serif-weight">Weight</label><select id="tt-serif-weight"><option value="400">Regular</option><option value="500">Medium</option><option value="700" selected>Bold</option><option value="800">Extra Bold</option></select></div>
         </div>
         <div class="tt-field"><span class="tt-label">Text size</span>
-          <div class="tt-stepper"><button id="tt-text-smaller" aria-label="Smaller text">A−</button><output data-value="textSize">100</output><button id="tt-text-bigger" aria-label="Bigger text">A+</button></div>
+          <div class="tt-stepper"><button id="tt-text-smaller" aria-label="Smaller text">A−</button><output data-value="textSize" data-suffix="%">100%</output><button id="tt-text-bigger" aria-label="Bigger text">A+</button></div>
         </div>
-        <p class="tt-hint">Drag the headline or logo on the preview to move it · scroll over it to resize.</p>
       </section>
 
       <section class="tt-card">
         <h3>Images</h3>
-        <div class="tt-field"><label for="tt-image1">Image 1 — or drop it on the preview</label><input id="tt-image1" type="file" accept="image/*"></div>
-        <div class="tt-inline"><label class="tt-check"><input id="tt-image2-on" type="checkbox"> Split image</label></div>
-        <div id="tt-image2-controls" class="tt-hidden">
-          <div class="tt-field"><label for="tt-image2">Image 2 (right side)</label><input id="tt-image2" type="file" accept="image/*"></div>
-          <div class="tt-field"><label for="tt-split">Split position <span data-value="split">0</span></label><input id="tt-split" data-bind="split" type="range" min="-100" max="100" value="0"></div>
-          <div class="tt-field"><label for="tt-split-angle">Split angle <span data-value="splitAngle">0</span>°</label><input id="tt-split-angle" data-bind="splitAngle" type="range" min="-30" max="30" value="0"></div>
+        <div class="tt-field" style="margin-top:0"><span class="tt-label" id="tt-img1-label">Image</span>
+          <div class="tt-file" data-file="img1"><button type="button" class="tt-file-pick">Choose image…</button><span class="tt-file-name"></span><button type="button" class="tt-file-clear" title="Remove image" aria-label="Remove image">✕</button><input type="file" accept="image/*,.heic,.heif" hidden></div>
         </div>
-        <p class="tt-hint">Drag on the preview to position each image · scroll to zoom.</p>
+        <label class="tt-check"><input id="tt-image2-on" type="checkbox"> Split screen with a second image</label>
+        <div id="tt-image2-controls" class="tt-hidden">
+          <div class="tt-field"><span class="tt-label">Image 2 (right)</span>
+            <div class="tt-file" data-file="img2"><button type="button" class="tt-file-pick">Choose image…</button><span class="tt-file-name"></span><button type="button" class="tt-file-clear" title="Remove image" aria-label="Remove image">✕</button><input type="file" accept="image/*,.heic,.heif" hidden></div>
+          </div>
+          <div class="tt-field"><label for="tt-split">Divider position <span data-value="split">0</span></label><input id="tt-split" data-bind="split" type="range" min="-100" max="100" value="0"></div>
+          <div class="tt-field"><label for="tt-split-angle">Divider angle <span data-value="splitAngle">0</span>°</label><input id="tt-split-angle" data-bind="splitAngle" type="range" min="-30" max="30" value="0"></div>
+          <button id="tt-swap" type="button">⇄ Swap images</button>
+        </div>
+        <p class="tt-hint">Drop or paste (<kbd>⌘</kbd>/<kbd>Ctrl</kbd>+<kbd>V</kbd>) an image anywhere. Drop two at once for a split screen.</p>
       </section>
 
       <details>
         <summary>Fine tune</summary>
         <div class="tt-field"><label for="tt-img1-x">Image 1 X <span data-value="img1.x">0</span></label><input id="tt-img1-x" data-bind="img1.x" type="range" min="-100" max="100" value="0"></div>
         <div class="tt-field"><label for="tt-img1-y">Image 1 Y <span data-value="img1.y">0</span></label><input id="tt-img1-y" data-bind="img1.y" type="range" min="-100" max="100" value="0"></div>
-        <div class="tt-field"><label for="tt-img1-scale">Image 1 scale <span data-value="img1.scale">100</span>%</label><input id="tt-img1-scale" data-bind="img1.scale" type="range" min="0" max="200" value="100"></div>
+        <div class="tt-field"><label for="tt-img1-scale">Image 1 zoom <span data-value="img1.scale">100</span>%</label><input id="tt-img1-scale" data-bind="img1.scale" type="range" min="25" max="300" value="100"></div>
         <div id="tt-img2-fine" class="tt-hidden">
           <div class="tt-field"><label for="tt-img2-x">Image 2 X <span data-value="img2.x">0</span></label><input id="tt-img2-x" data-bind="img2.x" type="range" min="-100" max="100" value="0"></div>
           <div class="tt-field"><label for="tt-img2-y">Image 2 Y <span data-value="img2.y">0</span></label><input id="tt-img2-y" data-bind="img2.y" type="range" min="-100" max="100" value="0"></div>
-          <div class="tt-field"><label for="tt-img2-scale">Image 2 scale <span data-value="img2.scale">100</span>%</label><input id="tt-img2-scale" data-bind="img2.scale" type="range" min="0" max="200" value="100"></div>
+          <div class="tt-field"><label for="tt-img2-scale">Image 2 zoom <span data-value="img2.scale">100</span>%</label><input id="tt-img2-scale" data-bind="img2.scale" type="range" min="25" max="300" value="100"></div>
         </div>
         <div class="tt-field"><label for="tt-text-x">Headline X <span data-value="textX">0</span></label><input id="tt-text-x" data-bind="textX" type="range" min="-160" max="500" value="0"></div>
         <div class="tt-field"><label for="tt-text-y">Headline Y <span data-value="textY">0</span></label><input id="tt-text-y" data-bind="textY" type="range" min="-260" max="180" value="0"></div>
         <div class="tt-field"><label for="tt-line-gap">Line spacing <span data-value="lineGap">100</span>%</label><input id="tt-line-gap" data-bind="lineGap" type="range" min="60" max="160" value="100"></div>
-        <div class="tt-field"><label for="tt-tracking">Tracking <span data-value="tracking">-1</span>% of size</label><input id="tt-tracking" data-bind="tracking" type="range" min="-5" max="5" step="0.1" value="-1"></div>
+        <div class="tt-field"><label for="tt-tracking">Letter spacing <span data-value="tracking">-1</span>% of size</label><input id="tt-tracking" data-bind="tracking" type="range" min="-5" max="5" step="0.1" value="-1"></div>
         <div class="tt-field"><label for="tt-logo-scale">Logo size <span data-value="logoScale">100</span>%</label><input id="tt-logo-scale" data-bind="logoScale" type="range" min="40" max="200" value="100"></div>
         <div class="tt-field"><label for="tt-logo-x">Logo X <span data-value="logoX">0</span></label><input id="tt-logo-x" data-bind="logoX" type="range" min="-500" max="300" value="0"></div>
         <div class="tt-field"><label for="tt-logo-y">Logo Y <span data-value="logoY">0</span></label><input id="tt-logo-y" data-bind="logoY" type="range" min="-160" max="500" value="0"></div>
-        <div class="tt-line-grid" aria-label="Text bar controls">
-          <span class="tt-label">Line</span><span class="tt-label">Left crop</span><span class="tt-label">Right crop</span>
-          <label class="tt-check"><input data-line-on="0" type="checkbox" checked>A</label><input data-line-left="0" type="number" min="0" max="100" value="0"><input data-line-right="0" type="number" min="0" max="100" value="0">
-          <label class="tt-check"><input data-line-on="1" type="checkbox" checked>B</label><input data-line-left="1" type="number" min="0" max="100" value="0"><input data-line-right="1" type="number" min="0" max="100" value="0">
-          <label class="tt-check"><input data-line-on="2" type="checkbox" checked>C</label><input data-line-left="2" type="number" min="0" max="100" value="0"><input data-line-right="2" type="number" min="0" max="100" value="0">
-          <label class="tt-check"><input data-line-on="3" type="checkbox" checked>D</label><input data-line-left="3" type="number" min="0" max="100" value="0"><input data-line-right="3" type="number" min="0" max="100" value="0">
+        <div class="tt-line-grid" role="group" aria-label="Headline bars">
+          <span class="tt-label">Bar</span><span class="tt-label">Trim left %</span><span class="tt-label">Trim right %</span>
+          <label class="tt-check"><input data-line-on="0" type="checkbox" checked>Line 1</label><input data-line-left="0" type="number" min="0" max="100" value="0" aria-label="Line 1 trim left"><input data-line-right="0" type="number" min="0" max="100" value="0" aria-label="Line 1 trim right">
+          <label class="tt-check"><input data-line-on="1" type="checkbox" checked>Line 2</label><input data-line-left="1" type="number" min="0" max="100" value="0" aria-label="Line 2 trim left"><input data-line-right="1" type="number" min="0" max="100" value="0" aria-label="Line 2 trim right">
+          <label class="tt-check"><input data-line-on="2" type="checkbox" checked>Line 3</label><input data-line-left="2" type="number" min="0" max="100" value="0" aria-label="Line 3 trim left"><input data-line-right="2" type="number" min="0" max="100" value="0" aria-label="Line 3 trim right">
+          <label class="tt-check"><input data-line-on="3" type="checkbox" checked>Line 4</label><input data-line-left="3" type="number" min="0" max="100" value="0" aria-label="Line 4 trim left"><input data-line-right="3" type="number" min="0" max="100" value="0" aria-label="Line 4 trim right">
         </div>
-        <p class="tt-hint">Double-click any slider to reset it.</p>
+        <p class="tt-hint">Untick a line to hide its bar. Double-click any slider to reset it.</p>
       </details>
 
       <details>
-        <summary>Guides and output</summary>
-        <div class="tt-inline"><label class="tt-check"><input id="tt-colour-guide" type="checkbox">Colour guide</label><label class="tt-check"><input id="tt-placement-guide" type="checkbox">Placement guide</label></div>
-        <div class="tt-field"><label for="tt-filename">Filename</label><input id="tt-filename" type="text" value="tvnz-news-thumbnail.png"></div>
-        <div class="tt-actions"><button id="tt-download" class="tt-primary">Download PNG</button><button id="tt-reset-all">Reset</button></div>
+        <summary>Guides</summary>
+        <div class="tt-inline"><label class="tt-check"><input id="tt-placement-guide" type="checkbox">Placement guide</label><label class="tt-check"><input id="tt-colour-guide" type="checkbox">Colour swatch</label></div>
+        <p class="tt-hint">Guides only show in the preview — they're never in the downloaded PNG.</p>
       </details>
+
+      <div><button id="tt-reset-all" class="tt-quiet" type="button">↺ Start over</button></div>
     </div>
-    <div class="tt-canvas-wrap">
-      <canvas id="tt-canvas" width="1920" height="1080" aria-label="TVNZ news thumbnail preview"></canvas>
-      <div class="tt-meta"><span>1920 × 1080 · 16:9</span><span id="tt-status">Drop an image on the preview · drag anything to move it · scroll to resize.</span><button id="tt-download-quick" class="tt-primary" title="Download PNG">Download PNG</button></div>
+
+    <div class="tt-preview">
+      <div class="tt-canvas-wrap">
+        <canvas id="tt-canvas" width="1920" height="1080" tabindex="0" aria-label="Thumbnail preview. Drag to move items, scroll to resize, arrow keys to nudge."></canvas>
+      </div>
+      <p class="tt-warn" id="tt-headline-warn" role="status" hidden></p>
+      <div class="tt-export"><span class="tt-dims">1920 × 1080</span><input id="tt-filename" type="text" aria-label="File name" spellcheck="false"><button id="tt-download" class="tt-primary" title="Download PNG (⌘/Ctrl+S)">Download PNG</button></div>
+      <p class="tt-hint">Drag the headline, logo, images or split divider to move them · scroll to resize · double-click to reset · click then use arrow keys to nudge (<kbd>Shift</kbd> for bigger steps).</p>
     </div>
   </section>
 
-  <section data-panel="quickplay" class="tt-layout tt-hidden">
+  <section data-panel="quickplay" class="tt-layout tt-hidden" role="tabpanel">
     <div class="tt-controls">
-      <details open><summary>Quick Play image</summary>
-        <div class="tt-field"><label for="tt-hero-file">General image</label><input id="tt-hero-file" type="file" accept="image/*"></div>
-        <div class="tt-field"><label for="tt-hero-scale">Scale <span data-hero-value="scale">100</span>%</label><input id="tt-hero-scale" data-hero="scale" type="range" min="0" max="500" value="100"></div>
-        <p class="tt-hint">Drag on any preview to position · scroll to zoom. All three sizes share one image.</p>
-      </details>
-      <details open><summary>Output</summary>
-        <div class="tt-field"><label for="tt-hero-prefix">Filename prefix</label><input id="tt-hero-prefix" type="text" value="tvnz-hero"></div>
-        <div class="tt-actions"><button id="tt-download-heroes" class="tt-primary">Download 3 PNGs</button><button id="tt-reset-hero">Reset</button></div>
-      </details>
+      <section class="tt-card">
+        <h3>Quick Play image</h3>
+        <div class="tt-file" data-file="hero"><button type="button" class="tt-file-pick">Choose image…</button><span class="tt-file-name"></span><button type="button" class="tt-file-clear" title="Remove image" aria-label="Remove image">✕</button><input type="file" accept="image/*,.heic,.heif" hidden></div>
+        <p class="tt-hint">One image is used for all three sizes. Frame each size separately: drag to move, scroll or use its zoom slider to resize, double-click to reset.</p>
+        <label class="tt-check" style="margin-top:10px"><input id="tt-hero-guides" type="checkbox" checked> Show safe-area guide</label>
+        <div style="margin-top:10px"><button id="tt-reset-hero" type="button">Reset framing</button></div>
+      </section>
     </div>
-    <div class="tt-hero-grid">
-      <div class="tt-canvas-wrap"><canvas id="tt-hero-ctv" width="2198" height="1239"></canvas><div class="tt-meta"><span>CTV · 2198 × 1239</span></div></div>
-      <div class="tt-canvas-wrap"><canvas id="tt-hero-desktop" width="4200" height="1400"></canvas><div class="tt-meta"><span>Desktop · 4200 × 1400</span></div></div>
-      <div class="tt-canvas-wrap tt-mobile"><canvas id="tt-hero-mobile" width="472" height="1002"></canvas><div class="tt-meta"><span>Mobile · 472 × 1002</span></div></div>
+    <div class="tt-preview">
+      <div class="tt-hero-grid">
+        <div class="tt-hero-wide">
+          <div class="tt-canvas-wrap"><canvas id="tt-hero-ctv" width="2198" height="1239" aria-label="CTV preview"></canvas><div class="tt-meta"><span>CTV · 2198 × 1239</span><label class="tt-zoom">Zoom <input type="range" data-hero-scale="ctv" min="25" max="500" value="100" aria-label="CTV zoom"><output data-hero-value="ctv">100%</output></label></div></div>
+          <div class="tt-canvas-wrap"><canvas id="tt-hero-desktop" width="4200" height="1400" aria-label="Desktop preview"></canvas><div class="tt-meta"><span>Desktop · 4200 × 1400</span><label class="tt-zoom">Zoom <input type="range" data-hero-scale="desktop" min="25" max="500" value="100" aria-label="Desktop zoom"><output data-hero-value="desktop">100%</output></label></div></div>
+        </div>
+        <div class="tt-canvas-wrap tt-mobile"><canvas id="tt-hero-mobile" width="472" height="1002" aria-label="Mobile preview"></canvas><div class="tt-meta"><span>Mobile · 472 × 1002</span><label class="tt-zoom">Zoom <input type="range" data-hero-scale="mobile" min="25" max="500" value="100" aria-label="Mobile zoom"><output data-hero-value="mobile">100%</output></label></div></div>
+      </div>
+      <div class="tt-export"><span class="tt-dims">File prefix</span><input id="tt-hero-prefix" type="text" value="tvnz-hero" aria-label="File name prefix" spellcheck="false"><button id="tt-download-heroes" class="tt-primary" title="Download all 3 PNGs (⌘/Ctrl+S)">Download 3 PNGs</button></div>
+      <p class="tt-hint">Saves <span id="tt-hero-names"></span>. If your browser asks, allow multiple downloads.</p>
     </div>
   </section>
 
-  <section data-panel="banner" class="tt-layout tt-hidden">
+  <section data-panel="banner" class="tt-layout tt-hidden" role="tabpanel">
     <div class="tt-controls">
-      <details open><summary>Banner image</summary>
-        <div class="tt-field"><label for="tt-banner-file">Image</label><input id="tt-banner-file" type="file" accept="image/*"></div>
-        <div class="tt-field"><label for="tt-banner-scale">Scale <span data-banner-value="scale">100</span>%</label><input id="tt-banner-scale" data-banner="scale" type="range" min="0" max="200" value="100"></div>
-        <p class="tt-hint">Drag on the preview to position · scroll to zoom.</p>
-      </details>
-      <details open><summary>Output</summary>
-        <div class="tt-field"><label for="tt-banner-name">Filename</label><input id="tt-banner-name" type="text" value="tvnz-news-banner.png"></div>
-        <div class="tt-actions"><button id="tt-download-banner" class="tt-primary">Download PNG</button><button id="tt-reset-banner">Reset</button></div>
-      </details>
+      <section class="tt-card">
+        <h3>Banner image</h3>
+        <div class="tt-file" data-file="banner"><button type="button" class="tt-file-pick">Choose image…</button><span class="tt-file-name"></span><button type="button" class="tt-file-clear" title="Remove image" aria-label="Remove image">✕</button><input type="file" accept="image/*,.heic,.heif" hidden></div>
+        <div class="tt-field"><label for="tt-banner-scale">Zoom <span data-banner-value="scale">100</span>%</label><input id="tt-banner-scale" data-banner="scale" type="range" min="25" max="300" value="100"></div>
+        <p class="tt-hint">Drag on the preview to position · scroll to zoom · double-click to reset.</p>
+        <div style="margin-top:10px"><button id="tt-reset-banner" type="button">Reset framing</button></div>
+      </section>
     </div>
-    <div class="tt-canvas-wrap"><canvas id="tt-banner-canvas" width="1967" height="501"></canvas><div class="tt-meta"><span>1967 × 501 · template source dimensions</span></div></div>
+    <div class="tt-preview">
+      <div class="tt-canvas-wrap"><canvas id="tt-banner-canvas" width="1967" height="501" aria-label="Banner preview"></canvas></div>
+      <div class="tt-export"><span class="tt-dims">1967 × 501</span><input id="tt-banner-name" type="text" value="tvnz-news-banner.png" aria-label="File name" spellcheck="false"><button id="tt-download-banner" class="tt-primary" title="Download PNG (⌘/Ctrl+S)">Download PNG</button></div>
+    </div>
   </section>
+
+  <div class="tt-toast" id="tt-toast" role="status" aria-live="polite"></div>
 
   <script type="application/json" id="tt-logo-data">{"te-karere":"assets/logos/te-karere.png","re":"assets/logos/re.png","newsmakers-revisited":"assets/logos/newsmakers-revisited.png","seven-sharp":"assets/logos/seven-sharp.png","qa":"assets/logos/qa.png","fair-go":"assets/logos/fair-go.png","breakfast":"assets/logos/breakfast.png","one-news-breaking":"assets/logos/one-news-breaking.png","one-news-exclusive":"assets/logos/one-news-exclusive.png","one-news-white":"assets/logos/one-news-white.png","one-news-black":"assets/logos/one-news-black.png","bbc":"assets/logos/bbc.png","business-breakfast":"assets/logos/business-breakfast.png","fifa-world-cup-2026":"assets/logos/fifa-world-cup-2026.png"}</script>
   <script>
   (()=>{
     const root=document.getElementById('tvnz-thumb-tool');
-    const FONT_PRIMARY='';
-    const FONT_FALLBACK='assets/fonts/black-sans-bold.ttf';
-    let LOGO_DATA={};
-    try{LOGO_DATA=JSON.parse(root.querySelector('#tt-logo-data').textContent)}catch(error){console.warn('Logo assets are not embedded in this source template. Open the built generator in the parent folder.');root.querySelector('#tt-status').textContent='Source template only — open TVNZ Thumbnail Generator.html in the parent folder.'}
-    const fontSources=['local("Black Sans Bold")','local("Black Sans")'];
-    if(FONT_PRIMARY&&!FONT_PRIMARY.includes('__'))fontSources.push(`url("${FONT_PRIMARY}") format("woff2")`);
-    if(FONT_FALLBACK&&!FONT_FALLBACK.includes('__'))fontSources.push(`url("${FONT_FALLBACK}") format("truetype")`);
-    const headlineFont=new FontFace('TVNZBlackSans',fontSources.join(', '),{weight:'700'});
-    const serifFaces=[['400','regular'],['500','medium'],['700','bold'],['800','extra-bold']].map(([weight,file])=>new FontFace('TVNZReithSerif',`url("assets/fonts/bbc-reith-serif-${file}.ttf")`,{weight}));
-    const travelsFont=new FontFace('TVNZTravels','url("assets/fonts/tt-travels-next-bold.ttf")',{weight:'700'});
-    Promise.allSettled([headlineFont,travelsFont,...serifFaces].map(face=>face.load())).then(results=>{results.forEach(result=>{if(result.status==='fulfilled')document.fonts.add(result.value)});calibrateFonts();renderThumbnail()});
+    const $=s=>root.querySelector(s),$$=s=>[...root.querySelectorAll(s)];
+    const clamp=(v,lo,hi)=>Math.max(lo,Math.min(hi,v));
+    const W=1920,H=1080;
+    const canvas=$('#tt-canvas'),ctx=canvas.getContext('2d');
 
+    // --- toast messages ---
+    const toastEl=$('#tt-toast');let toastTimer;
+    function toast(message,tone='info'){toastEl.textContent=message;toastEl.dataset.tone=tone;toastEl.classList.add('tt-show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>toastEl.classList.remove('tt-show'),tone==='error'?7000:2600)}
+
+    // --- fonts ---
+    // Base font sizes chosen so cap height matches the Photoshop references (~97px); recalibrated once each face loads.
+    const FONTS={
+      sans:{name:'Black Sans',family:'TVNZBlackSans',fallback:'"Arial Black", Arial, sans-serif',base:143,faces:[new FontFace('TVNZBlackSans','local("Black Sans Bold"), local("Black Sans"), url("assets/fonts/black-sans-bold.ttf") format("truetype")',{weight:'700'})]},
+      serif:{name:'BBC Reith Serif',family:'TVNZReithSerif',fallback:'Georgia, serif',base:136,faces:[['400','regular'],['500','medium'],['700','bold'],['800','extra-bold']].map(([weight,file])=>new FontFace('TVNZReithSerif',`url("assets/fonts/bbc-reith-serif-${file}.ttf") format("truetype")`,{weight}))},
+      travels:{name:'TT Travels Next',family:'TVNZTravels',fallback:'"Arial Black", Arial, sans-serif',base:137,faces:[new FontFace('TVNZTravels','url("assets/fonts/tt-travels-next-bold.ttf") format("truetype")',{weight:'700'})]}
+    };
+    Object.values(FONTS).forEach(f=>Promise.allSettled(f.faces.map(face=>face.load())).then(results=>{
+      const loaded=results.filter(r=>r.status==='fulfilled');loaded.forEach(r=>document.fonts.add(r.value));
+      if(loaded.length){ctx.font=`700 100px ${f.family}`;const cap=ctx.measureText('H').actualBoundingBoxAscent||0;if(cap>10)f.base=Math.round(100*97/cap)}
+      else toast(`Couldn't load the ${f.name} font — a fallback font is being used.`,'error');
+      renderThumbnail();
+    }));
+
+    // --- show presets and logos ---
+    let LOGO_DATA={};
+    try{LOGO_DATA=JSON.parse($('#tt-logo-data').textContent)}catch(error){console.warn('Logo list is not valid JSON',error)}
+    const logos={};
+    Object.entries(LOGO_DATA).forEach(([key,src])=>{const img=new Image();img.onload=()=>renderThumbnail();img.onerror=()=>toast(`Couldn't load the ${key} logo.`,'error');img.src=src;logos[key]=img});
     const presets=[
       ['1News Black','one-news-black','#CC3333','#202227',1447,89,281,91],
       ['1News White','one-news-white','#CC3333','#202227',1446,89,281,91],
@@ -226,165 +290,366 @@ GOES HERE</textarea>
       ['FIFA WORLD CUP 2026','fifa-world-cup-2026','#7A2BEB','#004D3F',1618,110,110,215],
       ['No Logo',null,'#CC3333','#202227',0,0,0,0]
     ].map((p,i)=>({name:p[0],asset:p[1],a:p[2],b:p[3],x:p[4],y:p[5],w:p[6],h:p[7],optionB:p[2]!==p[3],index:i}));
-    const images={};
-    Object.entries(LOGO_DATA).forEach(([k,v])=>{const img=new Image();img.src=v;img.onload=renderThumbnail;images[k]=img});
-    const state={img1:{image:null,x:0,y:0,scale:100},img2:{image:null,x:0,y:0,scale:100},image2On:false,split:0,splitAngle:0,textSize:100,textX:0,textY:0,lineGap:100,tracking:-1,fontStyle:'auto',serifWeight:'700',headline:'YOUR NEWS HEADLINE\nGOES HERE',logo:0,logoScale:100,logoX:0,logoY:0,colourOption:0,manual:false,manualColour:'#cc3333',colourGuide:false,placementGuide:false,textManual:false,textColour:'#ffffff',lines:[0,1,2,3].map(()=>({on:true,left:0,right:0}))};
-    const canvas=root.querySelector('#tt-canvas'),ctx=canvas.getContext('2d');
-    const clamp=(v,lo,hi)=>Math.max(lo,Math.min(hi,v));
-    // Base font sizes chosen so cap height matches the Photoshop references (~97px for both faces).
-    let SANS_BASE=143,SERIF_BASE=136,TRAVELS_BASE=137;
-    function calibrateFonts(){const m=(spec)=>{ctx.font=spec;const met=ctx.measureText('H');return met.actualBoundingBoxAscent||0};
-      const capSans=m('700 100px TVNZBlackSans');if(capSans>10)SANS_BASE=Math.round(100*97/capSans);
-      const capSerif=m('700 100px TVNZReithSerif');if(capSerif>10)SERIF_BASE=Math.round(100*97/capSerif);
-      const capTravels=m('700 100px TVNZTravels');if(capTravels>10)TRAVELS_BASE=Math.round(100*97/capTravels)}
 
-    function get(obj,path){return path.split('.').reduce((v,k)=>v[k],obj)}
+    // --- state ---
+    const DEFAULT_HEADLINE='Your news headline\ngoes here';
+    const freshImage=()=>({image:null,url:null,name:'',x:0,y:0,scale:100});
+    const defaultState=()=>({img1:freshImage(),img2:freshImage(),image2On:false,split:0,splitAngle:0,textSize:100,textX:0,textY:0,lineGap:100,tracking:-1,fontStyle:'auto',serifWeight:'700',headline:DEFAULT_HEADLINE,logo:0,logoScale:100,logoX:0,logoY:0,colourOption:0,manual:false,manualColour:'#cc3333',colourGuide:false,placementGuide:false,textManual:false,textColour:'#ffffff',lines:[0,1,2,3].map(()=>({on:true,left:0,right:0}))});
+    let state=defaultState();
+    const heroDefs=[{id:'ctv',w:2198,h:1239},{id:'desktop',w:4200,h:1400},{id:'mobile',w:472,h:1002}];
+    const hero={image:null,url:null,name:'',guides:true,frames:Object.fromEntries(heroDefs.map(d=>[d.id,{x:0,y:0,scale:100}]))};
+    const banner=freshImage();
+
+    const get=(obj,path)=>path.split('.').reduce((v,k)=>v[k],obj);
     function set(obj,path,value){const a=path.split('.');const last=a.pop();a.reduce((v,k)=>v[k],obj)[last]=value}
-    // push state values back into the fine-tune sliders and value labels
-    function syncControls(paths){paths.forEach(path=>{const value=get(state,path);root.querySelectorAll(`[data-bind="${path}"]`).forEach(el=>el.value=value);root.querySelectorAll(`[data-value="${path}"]`).forEach(el=>el.textContent=Math.round(value*10)/10)})}
-    function currentColour(){const p=presets[state.logo];return state.manual?state.manualColour:(state.colourOption?p.b:p.a)}
-    function paintEmpty(c,w,h){const g=c.createLinearGradient(0,0,w,h);g.addColorStop(0,'#454a52');g.addColorStop(1,'#17191d');c.fillStyle=g;c.fillRect(0,0,w,h);c.fillStyle='rgba(255,255,255,.55)';c.font=`500 ${Math.max(22,w/35)}px system-ui`;c.textAlign='center';c.fillText('DROP OR IMPORT AN IMAGE',w/2,h/2)}
-    function drawCover(c,img,viewW,viewH,control,clip){
-      c.save();if(clip){c.beginPath();if(Array.isArray(clip[0])){clip.forEach(([px,py],i)=>i?c.lineTo(px,py):c.moveTo(px,py));c.closePath()}else c.rect(...clip);c.clip()}
-      if(!img){paintEmpty(c,viewW,viewH);c.restore();return}
-      const cover=Math.max(viewW/img.naturalWidth,viewH/img.naturalHeight);const s=cover*(control.scale/100);
-      const w=img.naturalWidth*s,h=img.naturalHeight*s;
-      const cx=((control.x+100)/200)*viewW,cy=((control.y+100)/200)*viewH;
-      c.drawImage(img,cx-w/2,cy-h/2,w,h);c.restore();
+    const fmt=v=>String(Math.round(v*10)/10);
+    // push state values back into the sliders and value labels
+    function syncControls(paths){paths.forEach(path=>{const value=get(state,path);$$(`[data-bind="${path}"]`).forEach(el=>el.value=value);$$(`[data-value="${path}"]`).forEach(el=>el.textContent=fmt(value)+(el.dataset.suffix||''))})}
+
+    // --- drawing helpers ---
+    function coverRect(img,w,h,control){const s=Math.max(w/img.naturalWidth,h/img.naturalHeight)*control.scale/100;const dw=img.naturalWidth*s,dh=img.naturalHeight*s;const cx=(control.x+100)/200*w,cy=(control.y+100)/200*h;return {x:cx-dw/2,y:cy-dh/2,w:dw,h:dh}}
+    function drawCover(c,img,w,h,control,{clip,exporting,label='Drop, paste or choose an image',labelX=w/2}={}){
+      c.save();
+      if(clip){c.beginPath();clip.forEach(([px,py],i)=>i?c.lineTo(px,py):c.moveTo(px,py));c.closePath();c.clip()}
+      if(img){c.fillStyle='#000';c.fillRect(0,0,w,h);const r=coverRect(img,w,h,control);c.drawImage(img,r.x,r.y,r.w,r.h)}
+      else{
+        const g=c.createLinearGradient(0,0,w,h);g.addColorStop(0,'#454a52');g.addColorStop(1,'#17191d');c.fillStyle=g;c.fillRect(0,0,w,h);
+        if(!exporting){c.fillStyle='rgba(255,255,255,.6)';c.font=`500 ${Math.max(18,Math.min(w,h*1.8)/34)}px system-ui,sans-serif`;c.textAlign='center';c.textBaseline='middle';c.fillText(label,labelX,h/2)}
+      }
+      c.restore();
     }
-    // bounding boxes of the movable canvas elements, refreshed on every render, used for hit testing
+    // pan in canvas pixels; zoom keeps the point under the cursor fixed
+    function panBy(control,dx,dy,w,h){control.x=clamp(control.x+dx/w*200,-100,100);control.y=clamp(control.y+dy/h*200,-100,100)}
+    function zoomAt(control,factor,px,py,w,h,min,max){const old=control.scale,next=clamp(old*factor,min,max);if(next===old)return;const k=next/old,cx=(control.x+100)/200*w,cy=(control.y+100)/200*h;control.scale=next;control.x=clamp((px-(px-cx)*k)/w*200-100,-100,100);control.y=clamp((py-(py-cy)*k)/h*200-100,-100,100)}
+    function wheelFactor(e){const d=e.deltaY*(e.deltaMode===1?16:e.deltaMode===2?400:1);return Math.exp(-clamp(d,-150,150)*0.0015)}
+    function canvasPoint(c,e){const r=c.getBoundingClientRect();const k=c.width/r.width;return {px:(e.clientX-r.left)*k,py:(e.clientY-r.top)*k,k}}
+    function luminance(hex){const n=hex.replace('#','');const full=n.length===3?[...n].map(ch=>ch+ch).join(''):n;return [0,2,4].map(i=>parseInt(full.slice(i,i+2),16)/255).map(ch=>ch<=.03928?ch/12.92:((ch+.055)/1.055)**2.4).reduce((sum,ch,i)=>sum+ch*[.2126,.7152,.0722][i],0)}
+
+    // --- thumbnail ---
+    function effectiveFont(){if(state.fontStyle!=='auto')return state.fontStyle;const asset=presets[state.logo].asset;return asset==='bbc'?'serif':asset==='business-breakfast'?'travels':'sans'}
+    function barColour(){const p=presets[state.logo];return state.manual?state.manualColour:(state.colourOption?p.b:p.a)}
+    const autoTextColour=bar=>luminance(bar)>.4?'#11100B':'#FFFFFF';
+    function headlineLines(){const lines=state.headline.replace(/\r/g,'').split('\n').map(l=>l.trimEnd());while(lines.length&&!lines[lines.length-1])lines.pop();while(lines.length&&!lines[0])lines.shift();return lines}
+    const splitX=py=>(state.split+100)/200*W+Math.tan(state.splitAngle*Math.PI/180)*(H/2-py);
     const hitBoxes={text:null,logo:null};
-    let hoverTarget=null;
+    let hover=null,selected=null,drag=null;
+
     function renderThumbnail(exporting=false){
-      const W=1920,H=1080;ctx.clearRect(0,0,W,H);drawCover(ctx,state.img1.image,W,H,state.img1);
-      if(state.image2On){const split=((state.split+100)/200)*W;const dx=Math.tan(state.splitAngle*Math.PI/180)*(H/2);drawCover(ctx,state.img2.image,W,H,state.img2,[[split+dx,0],[W,0],[W,H],[split-dx,H]])}
+      ctx.clearRect(0,0,W,H);
+      const mid=splitX(H/2);
+      drawCover(ctx,state.img1.image,W,H,state.img1,{exporting,...(state.image2On?{label:'Image 1',labelX:mid/2}:{})});
+      if(state.image2On)drawCover(ctx,state.img2.image,W,H,state.img2,{exporting,label:'Image 2',labelX:(mid+W)/2,clip:[[splitX(0),0],[W,0],[W,H],[splitX(H),H]]});
       const shade=ctx.createLinearGradient(0,0,1280,0);shade.addColorStop(0,'rgba(0,0,0,.38)');shade.addColorStop(.62,'rgba(0,0,0,.04)');shade.addColorStop(1,'rgba(0,0,0,0)');ctx.fillStyle=shade;ctx.fillRect(0,0,W,H);
       const lower=ctx.createLinearGradient(0,540,0,H);lower.addColorStop(0,'rgba(0,0,0,0)');lower.addColorStop(1,'rgba(0,0,0,.2)');ctx.fillStyle=lower;ctx.fillRect(0,540,W,540);
-      const colour=currentColour();const lines=state.headline.replace(/\r/g,'').split('\n').slice(0,4);while(lines.length&&lines[lines.length-1]==='')lines.pop();
-      const asset=presets[state.logo].asset;
-      const font=state.fontStyle==='auto'?(asset==='bbc'?'serif':asset==='business-breakfast'?'travels':'sans'):state.fontStyle;
-      const useSerif=font==='serif';
+
       // Geometry measured from the Photoshop reference thumbnails (1920x1080):
       // bars touch (pitch == bar height == 137), block bottom 997, bar left 183,
       // text left 195, baseline 112 below bar top, ~24px bar padding right of text.
-      const ts=state.textSize/100;const fontPx=(font==='serif'?SERIF_BASE:font==='travels'?TRAVELS_BASE:SANS_BASE)*ts;
-      const barH=137*ts;const pitch=137*ts*(state.lineGap/100);const baselineOff=112*ts;
-      const blockBottom=997+state.textY;
-      ctx.font=useSerif?`${state.serifWeight} ${fontPx}px TVNZReithSerif, Georgia, serif`:font==='travels'?`700 ${fontPx}px TVNZTravels, "Arial Black", Arial, sans-serif`:`700 ${fontPx}px TVNZBlackSans, "Arial Black", Arial, sans-serif`;ctx.textBaseline='alphabetic';ctx.textAlign='left';
+      const lines=headlineLines().slice(0,4);
+      const fontKey=effectiveFont(),font=FONTS[fontKey],ts=state.textSize/100,fontPx=font.base*ts;
+      const barH=137*ts,pitch=barH*state.lineGap/100,baselineOff=112*ts,blockBottom=997+state.textY;
+      const textLeft=195+state.textX,barLeft=183+state.textX,barPad=(textLeft-barLeft)+24*ts;
+      ctx.font=`${fontKey==='serif'?state.serifWeight:'700'} ${fontPx}px ${font.family}, ${font.fallback}`;ctx.textBaseline='alphabetic';ctx.textAlign='left';
       if('letterSpacing'in ctx)ctx.letterSpacing=`${(state.tracking/100*fontPx).toFixed(2)}px`;
-      const bright=/^#(?:fff(?:fff)?|f[89a-f][0-9a-f]{4})$/i.test(colour);const textColour=state.textManual?state.textColour:(bright?'#11100B':'#FFFFFF');
-      const placed=lines.map((text,i)=>{const slot=4-lines.length+i;const barTop=blockBottom-barH-pitch*(lines.length-1-i);return {text,barTop,tw:ctx.measureText(text).width,lc:state.lines[slot]}});
-      const textLeft=195+state.textX,barLeft=183+state.textX;
+      const colour=barColour(),textColour=state.textManual?state.textColour:autoTextColour(colour);
+      const placed=lines.map((text,i)=>({text,barTop:blockBottom-barH-pitch*(lines.length-1-i),tw:text?ctx.measureText(text).width:0,bar:state.lines[i]}));
       // bars first, then all text: overlapping bars merge into one block without covering the previous line's text
-      ctx.fillStyle=colour;placed.forEach(({barTop,tw,lc})=>{if(lc.on){const leftCut=tw*(lc.left/100),rightCut=tw*((-lc.right)/100);ctx.fillRect(barLeft+leftCut,barTop,Math.max(10,tw+(textLeft-barLeft)+24*ts-leftCut-rightCut),barH)}});
-      ctx.fillStyle=textColour;placed.forEach(({text,barTop})=>ctx.fillText(text,textLeft,barTop+baselineOff));
+      ctx.fillStyle=colour;
+      placed.forEach(({text,barTop,tw,bar})=>{if(!text||!bar.on)return;const left=tw*bar.left/100,right=tw*bar.right/100;ctx.fillRect(barLeft+left,barTop,Math.max(10,tw+barPad-left-right),barH)});
+      ctx.fillStyle=textColour;placed.forEach(({text,barTop})=>{if(text)ctx.fillText(text,textLeft,barTop+baselineOff)});
       if('letterSpacing'in ctx)ctx.letterSpacing='0px';
-      hitBoxes.text=placed.length?{x:barLeft,y:Math.min(...placed.map(l=>l.barTop)),w:Math.max(...placed.map(l=>l.tw))+(textLeft-barLeft)+24*ts,h:blockBottom-Math.min(...placed.map(l=>l.barTop))}:null;
+      if(placed.length){const top=placed[0].barTop;hitBoxes.text={x:barLeft,y:top,w:Math.max(...placed.map(l=>l.tw))+barPad,h:blockBottom-top}}else hitBoxes.text=null;
+
       const p=presets[state.logo];hitBoxes.logo=null;
-      if(p.asset&&images[p.asset]&&images[p.asset].complete){const s=state.logoScale/100,w=p.w*s,h=p.h*s;const lx=p.x+(p.w-w)/2+state.logoX,ly=p.y+(p.h-h)/2+state.logoY;ctx.save();ctx.shadowColor='rgba(0,0,0,.28)';ctx.shadowBlur=14;ctx.shadowOffsetY=3;ctx.drawImage(images[p.asset],lx,ly,w,h);ctx.restore();hitBoxes.logo={x:lx,y:ly,w,h}}
-      if(!exporting&&hoverTarget&&hitBoxes[hoverTarget]){const b=hitBoxes[hoverTarget];ctx.save();ctx.strokeStyle='rgba(255,255,255,.85)';ctx.lineWidth=3;ctx.setLineDash([10,8]);ctx.strokeRect(b.x-8,b.y-8,b.w+16,b.h+16);ctx.restore()}
-      if(!exporting&&state.colourGuide){ctx.fillStyle=colour;ctx.fillRect(1054,972,100,100);ctx.strokeStyle='rgba(255,255,255,.8)';ctx.lineWidth=4;ctx.strokeRect(1054,972,100,100)}
-      if(!exporting&&state.placementGuide){ctx.save();ctx.strokeStyle='rgba(0,255,255,.9)';ctx.lineWidth=4;ctx.setLineDash([18,12]);ctx.strokeRect(183,89,1545,908);ctx.strokeRect(183,449,1000,548);ctx.restore()}
+      const logo=p.asset&&logos[p.asset];
+      if(logo&&logo.complete&&logo.naturalWidth){const s=state.logoScale/100,w=p.w*s,h=p.h*s;const lx=p.x+(p.w-w)/2+state.logoX,ly=p.y+(p.h-h)/2+state.logoY;ctx.save();ctx.shadowColor='rgba(0,0,0,.28)';ctx.shadowBlur=14;ctx.shadowOffsetY=3;ctx.drawImage(logo,lx,ly,w,h);ctx.restore();hitBoxes.logo={x:lx,y:ly,w,h}}
+
+      if(exporting)return;
+      // preview-only overlays
+      const focus=drag?drag.mode:(hover||(document.activeElement===canvas?selected:null));
+      if((focus==='logo'||focus==='text')&&hitBoxes[focus]){const b=hitBoxes[focus];ctx.save();ctx.strokeStyle='rgba(255,255,255,.85)';ctx.lineWidth=3;ctx.setLineDash([10,8]);ctx.strokeRect(b.x-8,b.y-8,b.w+16,b.h+16);ctx.restore()}
+      if(focus==='split'&&state.image2On){ctx.save();ctx.strokeStyle='rgba(255,255,255,.9)';ctx.lineWidth=5;ctx.setLineDash([16,10]);ctx.beginPath();ctx.moveTo(splitX(0),0);ctx.lineTo(splitX(H),H);ctx.stroke();ctx.restore()}
+      if(state.colourGuide){ctx.fillStyle=colour;ctx.fillRect(1054,972,100,100);ctx.strokeStyle='rgba(255,255,255,.8)';ctx.lineWidth=4;ctx.strokeRect(1054,972,100,100)}
+      if(state.placementGuide){ctx.save();ctx.strokeStyle='rgba(0,255,255,.9)';ctx.lineWidth=4;ctx.setLineDash([18,12]);ctx.strokeRect(183,89,1545,908);ctx.strokeRect(183,449,1000,548);ctx.restore()}
+      updateThumbnailHints(fontKey,colour);
     }
-    function loadImage(file,target,done){if(!file)return;const img=new Image();const url=URL.createObjectURL(file);img.onload=()=>{target.image=img;URL.revokeObjectURL(url);root.querySelector('#tt-status').textContent=`Loaded ${file.name}`;done()};img.onerror=()=>{URL.revokeObjectURL(url);root.querySelector('#tt-status').textContent='That image could not be opened.'};img.src=url}
-    root.querySelector('#tt-image1').addEventListener('change',e=>loadImage(e.target.files[0],state.img1,renderThumbnail));
-    root.querySelector('#tt-image2').addEventListener('change',e=>loadImage(e.target.files[0],state.img2,renderThumbnail));
-    root.querySelectorAll('[data-bind]').forEach(el=>el.addEventListener('input',()=>{set(state,el.dataset.bind,+el.value);root.querySelectorAll(`[data-value="${el.dataset.bind}"]`).forEach(v=>v.textContent=el.value);renderThumbnail()}));
-    root.querySelector('#tt-image2-on').addEventListener('change',e=>{state.image2On=e.target.checked;root.querySelector('#tt-image2-controls').classList.toggle('tt-hidden',!state.image2On);root.querySelector('#tt-img2-fine').classList.toggle('tt-hidden',!state.image2On);renderThumbnail()});
-    root.querySelector('#tt-headline').addEventListener('input',e=>{state.headline=e.target.value;renderThumbnail()});
-    root.querySelector('#tt-font-style').addEventListener('change',e=>{state.fontStyle=e.target.value;renderThumbnail()});
-    root.querySelector('#tt-serif-weight').addEventListener('change',e=>{state.serifWeight=e.target.value;renderThumbnail()});
 
-    // headline size stepper
-    function nudgeTextSize(d){state.textSize=clamp(state.textSize+d,60,150);syncControls(['textSize']);renderThumbnail()}
-    root.querySelector('#tt-text-smaller').onclick=()=>nudgeTextSize(-5);
-    root.querySelector('#tt-text-bigger').onclick=()=>nudgeTextSize(5);
+    const warnEl=$('#tt-headline-warn'),autoOption=$('#tt-font-style option[value="auto"]');
+    function updateThumbnailHints(fontKey,colour){
+      const all=headlineLines(),count=Math.min(all.length,4),b=hitBoxes.text,warnings=[];
+      if(all.length>4)warnings.push(`Only the first 4 lines are used — the headline has ${all.length}.`);
+      if(b&&(b.x+b.w>W||b.x<0||b.y<0||b.y+b.h>H))warnings.push('The headline runs off the edge. Add a line break, shorten it or reduce the text size.');
+      warnEl.textContent=warnings.join(' ');warnEl.hidden=!warnings.length;
+      autoOption.textContent=`Auto (${FONTS[presets[state.logo].asset==='bbc'?'serif':presets[state.logo].asset==='business-breakfast'?'travels':'sans'].name})`;
+      $('#tt-serif-weight-field').style.visibility=fontKey==='serif'?'visible':'hidden';
+      $('#tt-text-auto').textContent=state.textManual?'':`Auto: ${autoTextColour(colour)==='#FFFFFF'?'white':'black'}`;
+      $$('[data-line-on],[data-line-left],[data-line-right]').forEach(el=>{const i=+(el.dataset.lineOn??el.dataset.lineLeft??el.dataset.lineRight);el.disabled=i>=count;el.closest('label')?.style.setProperty('opacity',i>=count?'.4':'1')});
+      $('#tt-filename').placeholder=defaultThumbName();
+    }
 
-    // show preset chip grid
-    const presetGrid=root.querySelector('#tt-preset-grid');
-    presets.forEach((p,i)=>{const b=document.createElement('button');b.type='button';b.setAttribute('aria-pressed',String(i===0));const sw=document.createElement('span');sw.className='tt-swatch';sw.style.background=p.a;b.appendChild(sw);b.appendChild(document.createTextNode(p.name));b.onclick=()=>selectPreset(i);presetGrid.appendChild(b)});
-    function updateSwatches(){const p=presets[state.logo];const a=root.querySelector('[data-swatch="a"]'),b=root.querySelector('[data-swatch="b"]');a.style.background=p.a;b.style.background=p.optionB?p.b:'transparent';root.querySelector('#tt-colour-b').disabled=!p.optionB;root.querySelector('#tt-colour-b').style.opacity=p.optionB?'1':'.45'}
-    function updateColourButtons(){root.querySelector('#tt-colour-a').setAttribute('aria-pressed',String(!state.manual&&state.colourOption===0));root.querySelector('#tt-colour-b').setAttribute('aria-pressed',String(!state.manual&&state.colourOption===1));root.querySelector('#tt-colour-custom').setAttribute('aria-pressed',String(state.manual));root.querySelector('#tt-manual-colour').classList.toggle('tt-hidden',!state.manual)}
-    function selectPreset(i){state.logo=i;const p=presets[i];presetGrid.querySelectorAll('button').forEach((b,j)=>b.setAttribute('aria-pressed',String(j===i)));if(!p.optionB&&state.colourOption===1)state.colourOption=0;state.manualColour=p.a;root.querySelector('#tt-manual-colour').value=p.a;updateSwatches();updateColourButtons();renderThumbnail()}
-    root.querySelector('#tt-colour-a').onclick=()=>{state.manual=false;state.colourOption=0;updateColourButtons();renderThumbnail()};
-    root.querySelector('#tt-colour-b').onclick=()=>{if(!presets[state.logo].optionB)return;state.manual=false;state.colourOption=1;updateColourButtons();renderThumbnail()};
-    root.querySelector('#tt-colour-custom').onclick=()=>{state.manual=true;state.manualColour=root.querySelector('#tt-manual-colour').value;updateColourButtons();renderThumbnail()};
-    root.querySelector('#tt-manual-colour').addEventListener('input',e=>{state.manualColour=e.target.value;renderThumbnail()});
-    function updateTextColourButton(){root.querySelector('#tt-text-colour-on').setAttribute('aria-pressed',String(state.textManual));root.querySelector('#tt-text-colour').classList.toggle('tt-hidden',!state.textManual)}
-    root.querySelector('#tt-text-colour-on').onclick=()=>{state.textManual=!state.textManual;if(state.textManual)state.textColour=root.querySelector('#tt-text-colour').value;updateTextColourButton();renderThumbnail()};
-    root.querySelector('#tt-text-colour').addEventListener('input',e=>{state.textColour=e.target.value;renderThumbnail()});
-    updateSwatches();updateColourButtons();updateTextColourButton();
+    // --- image loading (file picker, drag and drop, paste) ---
+    function resetFraming(target){if(target.frames)Object.values(target.frames).forEach(f=>Object.assign(f,{x:0,y:0,scale:100}));else Object.assign(target,{x:0,y:0,scale:100})}
+    const slots={
+      img1:{get:()=>state.img1,refresh:()=>{syncControls(['img1.x','img1.y','img1.scale']);renderThumbnail()}},
+      img2:{get:()=>state.img2,refresh:()=>{syncControls(['img2.x','img2.y','img2.scale']);renderThumbnail()}},
+      hero:{get:()=>hero,refresh:()=>{syncHero();renderHeroes()}},
+      banner:{get:()=>banner,refresh:()=>{syncBanner();renderBanner()}}
+    };
+    // HEIC/HEIF (iPhone photos): Safari opens these natively; other browsers get them converted by the
+    // vendored heic2any library, which is only loaded the first time it's needed.
+    const isHeic=f=>/\.hei[cf]$/i.test(f.name||'')||/^image\/hei[cf]/i.test(f.type||'');
+    const isImageFile=f=>f&&(!f.type||f.type.startsWith('image/')||isHeic(f));
+    function decodeBlob(blob){return new Promise((resolve,reject)=>{const url=URL.createObjectURL(blob),img=new Image();img.onload=()=>resolve({img,url});img.onerror=()=>{URL.revokeObjectURL(url);reject(new Error('decode'))};img.src=url})}
+    let heicLib=null;
+    function loadHeicLib(){return heicLib||(heicLib=new Promise((resolve,reject)=>{const s=document.createElement('script');s.src='assets/vendor/heic2any.min.js';s.onload=()=>window.heic2any?resolve(window.heic2any):reject(new Error('heic-lib'));s.onerror=()=>{heicLib=null;s.remove();reject(new Error('heic-lib'))};document.head.appendChild(s)}))}
+    async function decodeImageFile(file){
+      try{return await decodeBlob(file)}catch(error){if(!isHeic(file))throw error}
+      toast(`Converting ${file.name||'HEIC photo'}…`);
+      const convert=await loadHeicLib();
+      let out;try{out=await convert({blob:file,toType:'image/jpeg',quality:.95})}catch{throw new Error('heic-decode')}
+      return decodeBlob(Array.isArray(out)?out[0]:out);
+    }
+    function loadErrorMessage(error,file){
+      const name=file.name||'that image';
+      if(error.message==='heic-lib')return 'Couldn\'t load the HEIC converter (assets/vendor/heic2any.min.js). Keep the assets folder next to this page, or save the photo as JPG.';
+      if(error.message==='heic-decode')return `Couldn't convert ${name}. Try exporting it from Photos as a JPG.`;
+      return `Couldn't open ${name}. Try saving it as a JPG or PNG first.`;
+    }
+    // a slow HEIC conversion must not overwrite an image chosen after it
+    const pendingLoads={};
+    async function loadInto(key,file){
+      if(!isImageFile(file)){toast('That file isn\'t an image. Use a JPG, PNG, WebP or HEIC.','error');return}
+      const token=pendingLoads[key]={};
+      let result;
+      try{result=await decodeImageFile(file)}catch(error){if(pendingLoads[key]===token)toast(loadErrorMessage(error,file),'error');return}
+      if(pendingLoads[key]!==token){URL.revokeObjectURL(result.url);return}
+      const {img,url}=result;
+      const t=slots[key].get();if(t.url)URL.revokeObjectURL(t.url);Object.assign(t,{image:img,url,name:file.name||'Pasted image'});resetFraming(t);updateFileLabels();slots[key].refresh();toast(`Loaded ${t.name}`);
+    }
+    function clearSlot(key){const t=slots[key].get();if(t.url)URL.revokeObjectURL(t.url);Object.assign(t,{image:null,url:null,name:''});resetFraming(t);updateFileLabels();slots[key].refresh()}
+    function updateFileLabels(){
+      $$('[data-file]').forEach(el=>{const t=slots[el.dataset.file].get();el.classList.toggle('tt-has-image',!!t.image);el.querySelector('.tt-file-name').textContent=t.image?t.name:'No image yet';el.querySelector('.tt-file-name').title=t.name;el.querySelector('.tt-file-clear').hidden=!t.image;el.querySelector('.tt-file-pick').textContent=t.image?'Replace…':'Choose image…'});
+      $('#tt-img1-label').textContent=state.image2On?'Image 1 (left)':'Image';
+    }
+    $$('[data-file]').forEach(el=>{const input=el.querySelector('input[type="file"]');el.querySelector('.tt-file-pick').onclick=()=>input.click();input.onchange=()=>{if(input.files[0])loadInto(el.dataset.file,input.files[0]);input.value=''};el.querySelector('.tt-file-clear').onclick=()=>clearSlot(el.dataset.file)});
 
-    ['colourGuide','placementGuide'].forEach(k=>root.querySelector(`#tt-${k.replace(/[A-Z]/g,m=>'-'+m.toLowerCase())}`).addEventListener('change',e=>{state[k]=e.target.checked;renderThumbnail()}));
-    root.querySelectorAll('[data-line-on]').forEach(el=>el.addEventListener('change',()=>{state.lines[+el.dataset.lineOn].on=el.checked;renderThumbnail()}));
-    root.querySelectorAll('[data-line-left]').forEach(el=>el.addEventListener('input',()=>{state.lines[+el.dataset.lineLeft].left=Math.max(0,Math.min(100,+el.value));renderThumbnail()}));
-    root.querySelectorAll('[data-line-right]').forEach(el=>el.addEventListener('input',()=>{state.lines[+el.dataset.lineRight].right=-Math.max(0,Math.min(100,+el.value));renderThumbnail()}));
-    function cleanName(name,fallback){name=(name||fallback).trim();return /\.png$/i.test(name)?name:name+'.png'}
-    function downloadCanvas(c,name){c.toBlob(blob=>{const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=cleanName(name,'tvnz-export.png');a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)},'image/png')}
-    root.querySelector('#tt-download').onclick=()=>{renderThumbnail(true);downloadCanvas(canvas,root.querySelector('#tt-filename').value);renderThumbnail(false)};
-    root.querySelector('#tt-download-quick').onclick=()=>root.querySelector('#tt-download').onclick();
-    // double-click any slider to restore its default value
-    root.querySelectorAll('input[type="range"]').forEach(el=>{if(!el.title)el.title='Double-click to reset';el.addEventListener('dblclick',()=>{el.value=el.defaultValue;el.dispatchEvent(new Event('input',{bubbles:true}))})});
-    root.querySelector('#tt-reset-all').onclick=()=>{
-      state.img1={image:null,x:0,y:0,scale:100};state.img2={image:null,x:0,y:0,scale:100};state.image2On=false;state.split=0;state.splitAngle=0;Object.assign(state,{textSize:100,textX:0,textY:0,lineGap:100,tracking:-1,fontStyle:'auto',serifWeight:'700',headline:'YOUR NEWS HEADLINE\nGOES HERE',logo:0,logoScale:100,logoX:0,logoY:0,colourOption:0,manual:false,manualColour:'#cc3333',colourGuide:false,placementGuide:false,textManual:false,textColour:'#ffffff'});state.lines.forEach(l=>Object.assign(l,{on:true,left:0,right:0}));
-      root.querySelectorAll('input[type="file"]').forEach(el=>el.value='');root.querySelector('#tt-headline').value=state.headline;root.querySelector('#tt-font-style').value='auto';root.querySelector('#tt-serif-weight').value='700';root.querySelector('#tt-image2-on').checked=false;root.querySelector('#tt-image2-controls').classList.add('tt-hidden');root.querySelector('#tt-img2-fine').classList.add('tt-hidden');root.querySelector('#tt-manual-colour').value='#cc3333';root.querySelector('#tt-colour-guide').checked=false;root.querySelector('#tt-placement-guide').checked=false;root.querySelector('#tt-status').textContent='Drop an image on the preview · drag anything to move it · scroll to resize.';
-      presetGrid.querySelectorAll('button').forEach((b,j)=>b.setAttribute('aria-pressed',String(j===0)));root.querySelector('#tt-text-colour').value='#ffffff';updateSwatches();updateColourButtons();updateTextColourButton();
-      root.querySelectorAll('[data-bind]').forEach(el=>{el.value=get(state,el.dataset.bind);root.querySelectorAll(`[data-value="${el.dataset.bind}"]`).forEach(v=>v.textContent=el.value)});syncControls(['textSize']);root.querySelectorAll('[data-line-on]').forEach(el=>el.checked=true);root.querySelectorAll('[data-line-left],[data-line-right]').forEach(el=>el.value=0);renderThumbnail();
+    function setSplit(on){state.image2On=on;$('#tt-image2-on').checked=on;$('#tt-image2-controls').classList.toggle('tt-hidden',!on);$('#tt-img2-fine').classList.toggle('tt-hidden',!on);if(!on&&(selected==='img2'||selected==='split'))selected=null;updateFileLabels();renderThumbnail()}
+    // where a dropped/pasted image should go on the thumbnail when no position is given
+    function thumbnailSlot(){if(state.image2On&&(selected==='img2'||(state.img1.image&&!state.img2.image)))return 'img2';return 'img1'}
+    function routeFiles(files,point){
+      const tab=activeTab();files=files.filter(isImageFile);
+      if(!files.length){toast('That isn\'t an image file.','error');return}
+      if(tab==='quickplay')return loadInto('hero',files[0]);
+      if(tab==='banner')return loadInto('banner',files[0]);
+      if(files.length>1){if(!state.image2On)setSplit(true);loadInto('img1',files[0]);loadInto('img2',files[1]);return}
+      if(point&&state.image2On)return loadInto(point.px>splitX(point.py)?'img2':'img1',files[0]);
+      loadInto(thumbnailSlot(),files[0]);
+    }
+    const hasFiles=e=>e.dataTransfer&&[...e.dataTransfer.types].includes('Files');
+    let dragDepth=0;
+    // catch drops anywhere on the page, so a missed drop never navigates away and loses work
+    window.addEventListener('dragenter',e=>{if(hasFiles(e)){dragDepth++;root.classList.add('tt-dragging')}});
+    window.addEventListener('dragleave',e=>{if(hasFiles(e)&&--dragDepth<=0){dragDepth=0;root.classList.remove('tt-dragging')}});
+    window.addEventListener('dragover',e=>{if(hasFiles(e)){e.preventDefault();e.dataTransfer.dropEffect='copy'}});
+    window.addEventListener('drop',e=>{if(!hasFiles(e))return;e.preventDefault();dragDepth=0;root.classList.remove('tt-dragging');routeFiles([...e.dataTransfer.files],e.target===canvas?canvasPoint(canvas,e):null)});
+    document.addEventListener('paste',e=>{
+      // let text pastes into the headline/filename through, even when the clipboard also carries an image rendering
+      if(e.target.matches&&e.target.matches('textarea,input[type="text"]')&&e.clipboardData&&[...e.clipboardData.types].includes('text/plain'))return;
+      const files=[...(e.clipboardData?.items||[])].filter(i=>i.kind==='file'&&i.type.startsWith('image/')).map(i=>i.getAsFile());if(!files.length)return;e.preventDefault();routeFiles(files.slice(0,1),null)});
+
+    // --- thumbnail controls ---
+    $$('[data-bind]').forEach(el=>el.addEventListener('input',()=>{set(state,el.dataset.bind,+el.value);syncControls([el.dataset.bind]);renderThumbnail()}));
+    $$('input[type="range"]').forEach(el=>{el.title=el.title||'Double-click to reset';el.addEventListener('dblclick',()=>{el.value=el.defaultValue;el.dispatchEvent(new Event('input',{bubbles:true}))})});
+    $('#tt-image2-on').addEventListener('change',e=>setSplit(e.target.checked));
+    $('#tt-swap').onclick=()=>{[state.img1,state.img2]=[state.img2,state.img1];syncControls(['img1.x','img1.y','img1.scale','img2.x','img2.y','img2.scale']);updateFileLabels();renderThumbnail()};
+    $('#tt-headline').addEventListener('input',e=>{state.headline=e.target.value;renderThumbnail()});
+    $('#tt-font-style').addEventListener('change',e=>{state.fontStyle=e.target.value;renderThumbnail()});
+    $('#tt-serif-weight').addEventListener('change',e=>{state.serifWeight=e.target.value;renderThumbnail()});
+    function setTextSize(v){state.textSize=clamp(v,60,150);syncControls(['textSize']);renderThumbnail()}
+    $('#tt-text-smaller').onclick=()=>setTextSize(Math.round(state.textSize/5)*5-5);
+    $('#tt-text-bigger').onclick=()=>setTextSize(Math.round(state.textSize/5)*5+5);
+
+    const presetGrid=$('#tt-preset-grid');
+    presets.forEach((p,i)=>{const b=document.createElement('button');b.type='button';const sw=document.createElement('span');sw.className='tt-swatch';sw.style.background=p.a;b.append(sw,p.name);b.onclick=()=>selectPreset(i);presetGrid.appendChild(b)});
+    function updateColourUI(){
+      const p=presets[state.logo];
+      presetGrid.querySelectorAll('button').forEach((b,j)=>b.setAttribute('aria-pressed',String(j===state.logo)));
+      $('[data-swatch="a"]').style.background=p.a;$('[data-swatch="b"]').style.background=p.optionB?p.b:'transparent';
+      $('#tt-colour-a').title=p.a;$('#tt-colour-b').disabled=!p.optionB;$('#tt-colour-b').title=p.optionB?p.b:`${p.name} only has one colour`;
+      $('#tt-colour-a').setAttribute('aria-pressed',String(!state.manual&&state.colourOption===0));
+      $('#tt-colour-b').setAttribute('aria-pressed',String(!state.manual&&state.colourOption===1));
+      $('#tt-colour-custom').setAttribute('aria-pressed',String(state.manual));
+      $('#tt-manual-colour').classList.toggle('tt-hidden',!state.manual);$('#tt-manual-colour').value=state.manualColour;
+      $('#tt-text-colour-on').checked=state.textManual;$('#tt-text-colour').classList.toggle('tt-hidden',!state.textManual);$('#tt-text-colour').value=state.textColour;
+    }
+    // picking a show switches back to that show's brand colours
+    function selectPreset(i){const p=presets[i];state.logo=i;state.manual=false;if(!p.optionB)state.colourOption=0;state.manualColour=p.a.toLowerCase();updateColourUI();renderThumbnail()}
+    $('#tt-colour-a').onclick=()=>{state.manual=false;state.colourOption=0;updateColourUI();renderThumbnail()};
+    $('#tt-colour-b').onclick=()=>{state.manual=false;state.colourOption=1;updateColourUI();renderThumbnail()};
+    $('#tt-colour-custom').onclick=()=>{state.manual=true;updateColourUI();renderThumbnail();try{$('#tt-manual-colour').showPicker()}catch{}};
+    $('#tt-manual-colour').addEventListener('input',e=>{state.manualColour=e.target.value;renderThumbnail()});
+    $('#tt-text-colour-on').addEventListener('change',e=>{state.textManual=e.target.checked;updateColourUI();renderThumbnail()});
+    $('#tt-text-colour').addEventListener('input',e=>{state.textColour=e.target.value;renderThumbnail()});
+    $('#tt-colour-guide').addEventListener('change',e=>{state.colourGuide=e.target.checked;renderThumbnail()});
+    $('#tt-placement-guide').addEventListener('change',e=>{state.placementGuide=e.target.checked;renderThumbnail()});
+    $$('[data-line-on]').forEach(el=>el.addEventListener('change',()=>{state.lines[+el.dataset.lineOn].on=el.checked;renderThumbnail()}));
+    $$('[data-line-left]').forEach(el=>el.addEventListener('input',()=>{state.lines[+el.dataset.lineLeft].left=clamp(+el.value||0,0,100);renderThumbnail()}));
+    $$('[data-line-right]').forEach(el=>el.addEventListener('input',()=>{state.lines[+el.dataset.lineRight].right=clamp(+el.value||0,0,100);renderThumbnail()}));
+
+    function syncAllThumbnailControls(){
+      $('#tt-headline').value=state.headline;$('#tt-font-style').value=state.fontStyle;$('#tt-serif-weight').value=state.serifWeight;
+      $('#tt-colour-guide').checked=state.colourGuide;$('#tt-placement-guide').checked=state.placementGuide;
+      $$('[data-line-on]').forEach(el=>el.checked=state.lines[+el.dataset.lineOn].on);
+      $$('[data-line-left]').forEach(el=>el.value=state.lines[+el.dataset.lineLeft].left);
+      $$('[data-line-right]').forEach(el=>el.value=state.lines[+el.dataset.lineRight].right);
+      syncControls([...new Set($$('[data-bind]').map(el=>el.dataset.bind)),'textSize']);
+      updateColourUI();setSplit(state.image2On);
+    }
+    $('#tt-reset-all').onclick=()=>{
+      if(!confirm('Start over? This clears the images, headline and all thumbnail settings.'))return;
+      [state.img1,state.img2].forEach(t=>t.url&&URL.revokeObjectURL(t.url));
+      state=defaultState();selected=null;$('#tt-filename').value='';syncAllThumbnailControls();updateFileLabels();renderThumbnail();toast('Thumbnail reset');
     };
 
-    // --- direct manipulation on the main canvas: drag/scroll the headline, logo, or images ---
-    function canvasPoint(e){const r=canvas.getBoundingClientRect();return {px:(e.clientX-r.left)/r.width*1920,py:(e.clientY-r.top)/r.height*1080,scaleX:1920/r.width,scaleY:1080/r.height}}
-    function inBox(b,px,py){return b&&px>=b.x-8&&px<=b.x+b.w+8&&py>=b.y-8&&py<=b.y+b.h+8}
-    function hitTest(px,py){
-      if(inBox(hitBoxes.logo,px,py))return 'logo';
-      if(inBox(hitBoxes.text,px,py))return 'text';
+    // --- direct manipulation on the thumbnail canvas ---
+    const inBox=(b,px,py,pad)=>b&&px>=b.x-pad&&px<=b.x+b.w+pad&&py>=b.y-pad&&py<=b.y+b.h+pad;
+    function targetAt(px,py,k=1){
+      if(inBox(hitBoxes.logo,px,py,8))return 'logo';
+      if(inBox(hitBoxes.text,px,py,8))return 'text';
       if(!state.image2On)return 'img1';
-      const boundary=((state.split+100)/200)*1920+Math.tan(state.splitAngle*Math.PI/180)*(540-py);
+      const boundary=splitX(py);
+      if(Math.abs(px-boundary)<=10*k)return 'split';
       return px>boundary?'img2':'img1';
     }
-    let drag=null;
-    canvas.addEventListener('pointerdown',e=>{const {px,py}=canvasPoint(e);drag={mode:hitTest(px,py),x:e.clientX,y:e.clientY};hoverTarget=(drag.mode==='logo'||drag.mode==='text')?drag.mode:null;canvas.setPointerCapture(e.pointerId);renderThumbnail()});
-    canvas.addEventListener('pointermove',e=>{
-      const {scaleX,scaleY,px,py}=canvasPoint(e);
-      if(!drag){const h=hitTest(px,py);const newHover=(h==='logo'||h==='text')?h:null;canvas.style.cursor=newHover?'move':'grab';if(newHover!==hoverTarget){hoverTarget=newHover;renderThumbnail()}return}
-      const dx=(e.clientX-drag.x)*scaleX,dy=(e.clientY-drag.y)*scaleY;drag.x=e.clientX;drag.y=e.clientY;
-      if(drag.mode==='logo'){state.logoX=clamp(state.logoX+dx,-500,300);state.logoY=clamp(state.logoY+dy,-160,500);syncControls(['logoX','logoY'])}
-      else if(drag.mode==='text'){state.textX=clamp(state.textX+dx,-160,500);state.textY=clamp(state.textY+dy,-260,180);syncControls(['textX','textY'])}
-      else{const t=state[drag.mode];t.x=clamp(t.x+dx/1920*200,-100,100);t.y=clamp(t.y+dy/1080*200,-100,100);syncControls([drag.mode+'.x',drag.mode+'.y'])}
-      renderThumbnail();
+    // move a target by canvas pixels
+    function moveTarget(mode,dx,dy){
+      if(mode==='logo'){state.logoX=clamp(state.logoX+dx,-500,300);state.logoY=clamp(state.logoY+dy,-160,500);syncControls(['logoX','logoY'])}
+      else if(mode==='text'){state.textX=clamp(state.textX+dx,-160,500);state.textY=clamp(state.textY+dy,-260,180);syncControls(['textX','textY'])}
+      else if(mode==='split'){state.split=clamp(state.split+dx/W*200,-100,100);syncControls(['split'])}
+      else{panBy(state[mode],dx,dy,W,H);syncControls([mode+'.x',mode+'.y'])}
+    }
+    function scaleTarget(mode,factor,px=W/2,py=H/2){
+      if(mode==='logo'){state.logoScale=clamp(state.logoScale*factor,40,200);syncControls(['logoScale'])}
+      else if(mode==='text'){state.textSize=clamp(state.textSize*factor,60,150);syncControls(['textSize'])}
+      else if(mode==='img1'||mode==='img2'){zoomAt(state[mode],factor,px,py,W,H,25,300);syncControls([mode+'.scale',mode+'.x',mode+'.y'])}
+    }
+    function resetTarget(mode){
+      if(mode==='logo')Object.assign(state,{logoX:0,logoY:0,logoScale:100});
+      else if(mode==='text')Object.assign(state,{textX:0,textY:0,textSize:100});
+      else if(mode==='split')Object.assign(state,{split:0,splitAngle:0});
+      else resetFraming(state[mode]);
+      syncAllThumbnailControls();renderThumbnail();
+    }
+    const cursorFor=mode=>mode==='logo'||mode==='text'?'move':mode==='split'?'ew-resize':drag?'grabbing':'grab';
+    canvas.addEventListener('pointerdown',e=>{
+      if(e.button!==0)return;
+      const {px,py,k}=canvasPoint(canvas,e);const mode=targetAt(px,py,k);
+      drag={mode,x:e.clientX,y:e.clientY};selected=mode;canvas.setPointerCapture(e.pointerId);canvas.focus({preventScroll:true});canvas.style.cursor=cursorFor(mode);renderThumbnail();
     });
+    canvas.addEventListener('pointermove',e=>{
+      const {px,py,k}=canvasPoint(canvas,e);
+      if(!drag){const mode=targetAt(px,py,k);canvas.style.cursor=cursorFor(mode);const next=mode==='logo'||mode==='text'||mode==='split'?mode:null;if(next!==hover){hover=next;renderThumbnail()}return}
+      moveTarget(drag.mode,(e.clientX-drag.x)*k,(e.clientY-drag.y)*k);drag.x=e.clientX;drag.y=e.clientY;renderThumbnail();
+    });
+    const endDrag=()=>{if(!drag)return;drag=null;canvas.style.cursor=cursorFor(hover);renderThumbnail()};
+    canvas.addEventListener('pointerup',endDrag);canvas.addEventListener('pointercancel',endDrag);
+    canvas.addEventListener('pointerleave',()=>{if(!drag&&hover){hover=null;renderThumbnail()}});
     canvas.addEventListener('wheel',e=>{
-      e.preventDefault();const {px,py}=canvasPoint(e);const mode=hitTest(px,py);const step=-Math.sign(e.deltaY);
-      if(mode==='logo'){state.logoScale=clamp(state.logoScale+step*4,40,200);syncControls(['logoScale'])}
-      else if(mode==='text'){state.textSize=clamp(state.textSize+step*2,60,150);syncControls(['textSize'])}
-      else{const t=state[mode];t.scale=clamp(t.scale+step*2,0,200);syncControls([mode+'.scale'])}
-      renderThumbnail();
+      e.preventDefault();const {px,py,k}=canvasPoint(canvas,e);let mode=targetAt(px,py,k);
+      if(mode==='split')mode=px>splitX(py)?'img2':'img1';
+      scaleTarget(mode,wheelFactor(e),px,py);renderThumbnail();
     },{passive:false});
-    canvas.addEventListener('pointerup',()=>drag=null);canvas.addEventListener('pointercancel',()=>drag=null);
-    canvas.addEventListener('pointerleave',()=>{if(!drag&&hoverTarget){hoverTarget=null;renderThumbnail()}});
-    canvas.addEventListener('dragover',e=>e.preventDefault());canvas.addEventListener('drop',e=>{e.preventDefault();const file=e.dataTransfer&&e.dataTransfer.files&&e.dataTransfer.files[0];if(file)loadImage(file,state.img1,renderThumbnail)});
+    canvas.addEventListener('dblclick',e=>{const {px,py,k}=canvasPoint(canvas,e);resetTarget(targetAt(px,py,k))});
+    canvas.addEventListener('focus',()=>{if(!selected)selected='text';renderThumbnail()});
+    canvas.addEventListener('blur',()=>renderThumbnail());
+    canvas.addEventListener('keydown',e=>{
+      const mode=selected||'text',step=e.shiftKey?20:2;
+      const moves={ArrowLeft:[-step,0],ArrowRight:[step,0],ArrowUp:[0,-step],ArrowDown:[0,step]};
+      if(moves[e.key]){e.preventDefault();moveTarget(mode,...moves[e.key]);renderThumbnail()}
+      else if(e.key==='+'||e.key==='='){e.preventDefault();scaleTarget(mode,1.03);renderThumbnail()}
+      else if(e.key==='-'||e.key==='_'){e.preventDefault();scaleTarget(mode,1/1.03);renderThumbnail()}
+      else if(e.key==='Escape'){selected=null;canvas.blur()}
+    });
 
-    // generic drag-to-pan / scroll-to-zoom for the Quick Play and Banner canvases
-    function attachPan(c,control,render,scaleMax,onChange){
+    // --- export ---
+    function slug(text){text=text.toLowerCase().normalize('NFKD').replace(/[̀-ͯ]/g,'').replace(/['’‘]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');return text.length>60?text.slice(0,60).replace(/-[^-]*$/,''):text}
+    function safeName(name,fallback){name=(name||'').trim().replace(/[\\/:*?"<>|]+/g,'-')||fallback;return /\.png$/i.test(name)?name:name+'.png'}
+    const defaultThumbName=()=>safeName(slug(headlineLines().slice(0,4).join(' ')),'tvnz-news-thumbnail');
+    function exportCanvas(c,name){
+      toast('Preparing PNG…');
+      try{
+        c.toBlob(blob=>{
+          if(!blob){toast('Export failed — the browser couldn\'t create the PNG.','error');return}
+          const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),5000);toast(`Downloaded ${name}`);
+        },'image/png');
+      }catch(error){
+        toast(error&&error.name==='SecurityError'?'The browser blocked the download because this page was opened straight from a file. Open it through the hosted link or a local web server instead.':`Export failed: ${error.message}`,'error');
+      }
+    }
+    function downloadThumbnail(){
+      const missing=!state.img1.image?'No image has been added':state.image2On&&!state.img2.image?'The second split-screen image is empty':'';
+      if(missing&&!confirm(`${missing}. Download anyway?`))return;
+      renderThumbnail(true);exportCanvas(canvas,safeName($('#tt-filename').value,defaultThumbName()));renderThumbnail();
+    }
+    $('#tt-download').onclick=downloadThumbnail;
+
+    // --- shared drag-to-pan / scroll-to-zoom for the Quick Play and Banner canvases ---
+    function attachPanZoom(c,{control,render,sync,min,max}){
       let d=null;
-      c.addEventListener('pointerdown',e=>{d={x:e.clientX,y:e.clientY};c.setPointerCapture(e.pointerId)});
-      c.addEventListener('pointermove',e=>{if(!d)return;const r=c.getBoundingClientRect();control.x=clamp(control.x+(e.clientX-d.x)/r.width*200,-100,100);control.y=clamp(control.y+(e.clientY-d.y)/r.height*200,-100,100);d={x:e.clientX,y:e.clientY};render();if(onChange)onChange()});
-      c.addEventListener('pointerup',()=>d=null);c.addEventListener('pointercancel',()=>d=null);
-      c.addEventListener('wheel',e=>{e.preventDefault();control.scale=clamp(control.scale-Math.sign(e.deltaY)*2,0,scaleMax);render();if(onChange)onChange()},{passive:false});
+      c.addEventListener('pointerdown',e=>{if(e.button!==0)return;d={x:e.clientX,y:e.clientY};c.setPointerCapture(e.pointerId);c.classList.add('tt-grabbing')});
+      c.addEventListener('pointermove',e=>{if(!d)return;const {k}=canvasPoint(c,e);panBy(control(),(e.clientX-d.x)*k,(e.clientY-d.y)*k,c.width,c.height);d={x:e.clientX,y:e.clientY};render();sync()});
+      const end=()=>{d=null;c.classList.remove('tt-grabbing')};c.addEventListener('pointerup',end);c.addEventListener('pointercancel',end);
+      c.addEventListener('wheel',e=>{e.preventDefault();const {px,py}=canvasPoint(c,e);zoomAt(control(),wheelFactor(e),px,py,c.width,c.height,min,max);render();sync()},{passive:false});
+      c.addEventListener('dblclick',()=>{resetFraming(control());render();sync()});
     }
 
-    const hero={image:null,x:0,y:0,scale:100};const heroDefs=[['ctv',2198,1239],['desktop',4200,1400],['mobile',472,1002]];
-    function renderHeroes(exporting=false){heroDefs.forEach(([id,w,h])=>{const c=root.querySelector('#tt-hero-'+id),x=c.getContext('2d');x.clearRect(0,0,w,h);drawCover(x,hero.image,w,h,hero);if(!exporting){x.strokeStyle='rgba(255,255,255,.7)';x.lineWidth=Math.max(2,w/700);x.setLineDash([w/80,w/120]);x.strokeRect(w*.06,h*.08,w*.88,h*.84)}})}
-    function syncHero(){root.querySelectorAll('[data-hero]').forEach(el=>{el.value=hero[el.dataset.hero];const v=root.querySelector(`[data-hero-value="${el.dataset.hero}"]`);if(v)v.textContent=Math.round(hero[el.dataset.hero])})}
-    root.querySelector('#tt-hero-file').onchange=e=>loadImage(e.target.files[0],hero,renderHeroes);root.querySelectorAll('[data-hero]').forEach(el=>el.oninput=()=>{hero[el.dataset.hero]=+el.value;root.querySelector(`[data-hero-value="${el.dataset.hero}"]`).textContent=el.value;renderHeroes()});root.querySelector('#tt-reset-hero').onclick=()=>{Object.assign(hero,{x:0,y:0,scale:100});syncHero();renderHeroes()};root.querySelector('#tt-download-heroes').onclick=()=>{const p=root.querySelector('#tt-hero-prefix').value||'tvnz-hero';renderHeroes(true);heroDefs.forEach(([id])=>downloadCanvas(root.querySelector('#tt-hero-'+id),`${p}-${id}.png`));setTimeout(()=>renderHeroes(false),100)};
-    heroDefs.forEach(([id])=>attachPan(root.querySelector('#tt-hero-'+id),hero,renderHeroes,500,syncHero));
+    // --- Quick Play ---
+    function renderHero(d,exporting=false){
+      const c=$('#tt-hero-'+d.id),x=c.getContext('2d');x.clearRect(0,0,d.w,d.h);drawCover(x,hero.image,d.w,d.h,hero.frames[d.id],{exporting});
+      if(!exporting&&hero.guides){x.save();x.strokeStyle='rgba(255,255,255,.7)';x.lineWidth=Math.max(2,d.w/700);x.setLineDash([d.w/80,d.w/120]);x.strokeRect(d.w*.06,d.h*.08,d.w*.88,d.h*.84);x.restore()}
+    }
+    const renderHeroes=()=>heroDefs.forEach(d=>renderHero(d));
+    function syncHero(){heroDefs.forEach(d=>{const s=hero.frames[d.id].scale;$(`[data-hero-scale="${d.id}"]`).value=s;$(`[data-hero-value="${d.id}"]`).textContent=Math.round(s)+'%'})}
+    function heroNames(){const prefix=($('#tt-hero-prefix').value||'').trim().replace(/\.png$/i,'').replace(/[\\/:*?"<>|]+/g,'-')||'tvnz-hero';return heroDefs.map(d=>`${prefix}-${d.id}.png`)}
+    function updateHeroNames(){$('#tt-hero-names').textContent=heroNames().join(', ')}
+    heroDefs.forEach(d=>{
+      attachPanZoom($('#tt-hero-'+d.id),{control:()=>hero.frames[d.id],render:()=>renderHero(d),sync:syncHero,min:25,max:500});
+      $(`[data-hero-scale="${d.id}"]`).addEventListener('input',e=>{hero.frames[d.id].scale=+e.target.value;syncHero();renderHero(d)});
+    });
+    $('#tt-hero-guides').addEventListener('change',e=>{hero.guides=e.target.checked;renderHeroes()});
+    $('#tt-hero-prefix').addEventListener('input',updateHeroNames);
+    $('#tt-reset-hero').onclick=()=>{resetFraming(hero);syncHero();renderHeroes()};
+    function downloadHeroes(){
+      if(!hero.image&&!confirm('No image has been added. Download anyway?'))return;
+      // staggered so the browser doesn't drop simultaneous downloads
+      const names=heroNames();heroDefs.forEach((d,i)=>setTimeout(()=>{renderHero(d,true);exportCanvas($('#tt-hero-'+d.id),names[i]);renderHero(d)},i*350));
+    }
+    $('#tt-download-heroes').onclick=downloadHeroes;
 
-    const banner={image:null,x:0,y:0,scale:100},bannerCanvas=root.querySelector('#tt-banner-canvas');function renderBanner(){const c=bannerCanvas.getContext('2d');c.clearRect(0,0,1967,501);drawCover(c,banner.image,1967,501,banner);const g=c.createLinearGradient(0,0,1100,0);g.addColorStop(0,'rgba(0,0,0,.45)');g.addColorStop(1,'rgba(0,0,0,0)');c.fillStyle=g;c.fillRect(0,0,1967,501)}
-    function syncBanner(){root.querySelectorAll('[data-banner]').forEach(el=>{el.value=banner[el.dataset.banner];const v=root.querySelector(`[data-banner-value="${el.dataset.banner}"]`);if(v)v.textContent=Math.round(banner[el.dataset.banner])})}
-    root.querySelector('#tt-banner-file').onchange=e=>loadImage(e.target.files[0],banner,renderBanner);root.querySelectorAll('[data-banner]').forEach(el=>el.oninput=()=>{banner[el.dataset.banner]=+el.value;root.querySelector(`[data-banner-value="${el.dataset.banner}"]`).textContent=el.value;renderBanner()});root.querySelector('#tt-reset-banner').onclick=()=>{Object.assign(banner,{x:0,y:0,scale:100});syncBanner();renderBanner()};root.querySelector('#tt-download-banner').onclick=()=>downloadCanvas(bannerCanvas,root.querySelector('#tt-banner-name').value);
-    attachPan(bannerCanvas,banner,renderBanner,200,syncBanner);
+    // --- Banner ---
+    const bannerCanvas=$('#tt-banner-canvas');
+    function renderBanner(exporting=false){const c=bannerCanvas.getContext('2d');c.clearRect(0,0,1967,501);drawCover(c,banner.image,1967,501,banner,{exporting});const g=c.createLinearGradient(0,0,1100,0);g.addColorStop(0,'rgba(0,0,0,.45)');g.addColorStop(1,'rgba(0,0,0,0)');c.fillStyle=g;c.fillRect(0,0,1967,501)}
+    function syncBanner(){$('#tt-banner-scale').value=banner.scale;$('[data-banner-value="scale"]').textContent=Math.round(banner.scale)}
+    $('#tt-banner-scale').addEventListener('input',e=>{banner.scale=+e.target.value;syncBanner();renderBanner()});
+    $('#tt-reset-banner').onclick=()=>{resetFraming(banner);syncBanner();renderBanner()};
+    function downloadBanner(){if(!banner.image&&!confirm('No image has been added. Download anyway?'))return;renderBanner(true);exportCanvas(bannerCanvas,safeName($('#tt-banner-name').value,'tvnz-news-banner'));renderBanner()}
+    $('#tt-download-banner').onclick=downloadBanner;
+    attachPanZoom(bannerCanvas,{control:()=>banner,render:renderBanner,sync:syncBanner,min:25,max:300});
 
-    root.querySelectorAll('[data-tab]').forEach(btn=>btn.onclick=()=>{root.querySelectorAll('[data-tab]').forEach(b=>b.setAttribute('aria-selected',String(b===btn)));root.querySelectorAll('[data-panel]').forEach(p=>p.classList.toggle('tt-hidden',p.dataset.panel!==btn.dataset.tab));if(btn.dataset.tab==='quickplay')renderHeroes();if(btn.dataset.tab==='banner')renderBanner()});
+    // --- tabs, shortcuts, leaving the page ---
+    const TABS=['thumbnail','quickplay','banner'];
+    const activeTab=()=>$('[data-tab][aria-selected="true"]').dataset.tab;
+    function showTab(name){
+      $$('[data-tab]').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.tab===name)));
+      $$('[data-panel]').forEach(p=>p.classList.toggle('tt-hidden',p.dataset.panel!==name));
+      if(location.hash.slice(1)!==name)history.replaceState(null,'','#'+name);
+    }
+    $$('[data-tab]').forEach(btn=>btn.onclick=()=>showTab(btn.dataset.tab));
+    document.addEventListener('keydown',e=>{if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='s'){e.preventDefault();({thumbnail:downloadThumbnail,quickplay:downloadHeroes,banner:downloadBanner})[activeTab()]()}});
+    window.addEventListener('beforeunload',e=>{if(state.img1.image||state.img2.image||hero.image||banner.image){e.preventDefault();e.returnValue=''}});
+
+    syncAllThumbnailControls();updateFileLabels();updateHeroNames();syncHero();syncBanner();
+    showTab(TABS.includes(location.hash.slice(1))?location.hash.slice(1):'thumbnail');
     renderThumbnail();renderHeroes();renderBanner();
   })();
   </script>

@@ -1,0 +1,372 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TVNZ Split Image Builder</title>
+<style>:root{color-scheme:dark;--background:#111214}body{margin:0;background:var(--background);padding:18px;max-width:1500px;margin-inline:auto}@media(max-width:600px){body{padding:0}}</style>
+</head>
+<body>
+<div id="tt-split-tool">
+  <style>
+    #tt-split-tool{--tt-bg:#0d0f12;--tt-panel:#171a20;--tt-panel-2:#1d2128;--tt-fg:#f4f6f8;--tt-muted-fg:#aeb5c0;--tt-border:#343a44;--tt-accent:#ff4b45;--tt-accent-hover:#ff625d;--tt-control:#11141a;--tt-focus:#72a7ff;color-scheme:dark;color:var(--tt-fg);background:var(--tt-bg);padding:18px;border-radius:14px;font:14px/1.4 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;width:100%;box-sizing:border-box;box-shadow:0 18px 50px rgba(0,0,0,.22)}
+    #tt-split-tool *{box-sizing:border-box}
+    #tt-split-tool [hidden],#tt-split-tool .tt-hidden{display:none!important}
+    #tt-split-tool .tt-appbar{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid var(--tt-border)}
+    #tt-split-tool .tt-brand{display:grid;gap:2px}
+    #tt-split-tool .tt-brand strong{font-size:18px;font-weight:650;letter-spacing:-.02em}
+    #tt-split-tool .tt-brand span{color:var(--tt-muted-fg);font-size:12px}
+    #tt-split-tool .tt-brand a{color:var(--tt-muted-fg)}
+    #tt-split-tool button,#tt-split-tool input,#tt-split-tool select{font:inherit;color:var(--tt-fg)}
+    #tt-split-tool button{border:1px solid var(--tt-border);background:var(--tt-panel-2);border-radius:8px;padding:8px 12px;cursor:pointer;transition:background .12s,border-color .12s}
+    #tt-split-tool button:hover{background:#292e37;border-color:#4b5360}
+    #tt-split-tool button:active{transform:translateY(1px)}
+    #tt-split-tool .tt-primary{background:var(--tt-accent);color:#fff;border-color:var(--tt-accent);font-weight:600}
+    #tt-split-tool .tt-primary:hover{background:var(--tt-accent-hover);border-color:var(--tt-accent-hover)}
+    #tt-split-tool .tt-quiet{background:transparent;border-color:transparent;color:var(--tt-muted-fg);padding:6px 8px}
+    #tt-split-tool .tt-quiet:hover{color:var(--tt-fg);background:var(--tt-panel-2)}
+    #tt-split-tool input[type="text"],#tt-split-tool input[type="number"],#tt-split-tool select{width:100%;border:1px solid var(--tt-border);border-radius:8px;background:var(--tt-control);padding:8px 9px}
+    #tt-split-tool input:focus-visible,#tt-split-tool select:focus-visible,#tt-split-tool button:focus-visible,#tt-split-tool canvas:focus-visible{outline:2px solid var(--tt-focus);outline-offset:2px}
+    #tt-split-tool canvas:focus{outline:none}
+    #tt-split-tool input[type="range"]{width:100%;accent-color:var(--tt-accent)}
+    #tt-split-tool input[type="checkbox"]{accent-color:var(--tt-accent)}
+    #tt-split-tool input[type="color"]{width:40px;height:32px;border:1px solid var(--tt-border);background:var(--tt-control);padding:3px;border-radius:7px;cursor:pointer}
+    #tt-split-tool .tt-layout{display:grid;grid-template-columns:minmax(300px,360px) minmax(0,1fr);gap:18px;align-items:start}
+    #tt-split-tool .tt-controls{display:grid;grid-template-columns:minmax(0,1fr);gap:10px;min-width:0}
+    #tt-split-tool .tt-card{background:var(--tt-panel);border:1px solid var(--tt-border);border-radius:10px;padding:11px 12px}
+    #tt-split-tool .tt-card>h3{margin:0 0 9px;font-size:14px;font-weight:650}
+    #tt-split-tool .tt-field{display:grid;grid-template-columns:minmax(0,1fr);gap:5px;margin:9px 0}
+    #tt-split-tool .tt-field>label,#tt-split-tool .tt-label{color:var(--tt-muted-fg);font-size:12px;font-weight:550}
+    #tt-split-tool .tt-field>label span{color:var(--tt-fg)}
+    #tt-split-tool .tt-hint{color:var(--tt-muted-fg);font-size:12px;margin:8px 0 0}
+    #tt-split-tool .tt-seg{display:grid;grid-template-columns:1fr 1fr;gap:4px;background:var(--tt-control);border:1px solid var(--tt-border);border-radius:9px;padding:3px}
+    #tt-split-tool .tt-seg button{border-color:transparent;background:transparent;padding:6px 8px;font-size:12.5px;display:flex;align-items:center;justify-content:center;gap:7px}
+    #tt-split-tool .tt-seg button[aria-pressed="true"]{background:var(--tt-fg);color:#111318}
+    #tt-split-tool .tt-seg svg{width:16px;height:12px;flex:none}
+    #tt-split-tool .tt-swatch{width:14px;height:14px;border-radius:4px;border:1px solid rgba(255,255,255,.35);display:inline-block;flex:none}
+    #tt-split-tool .tt-swatch-none{background:repeating-conic-gradient(#8a8f98 0 25%,#d6d9de 0 50%) 0 0/8px 8px}
+    #tt-split-tool .tt-bg-hint{display:flex;gap:8px;align-items:center}
+    #tt-split-tool .tt-bg-hint{align-items:flex-start}#tt-split-tool .tt-bg-hint .tt-swatch{width:18px;height:12px;margin-top:2px}
+    #tt-split-tool .tt-row-2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+    #tt-split-tool .tt-row-2 .tt-field{margin:0}
+    #tt-split-tool .tt-inline{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+    #tt-split-tool .tt-file{min-width:0;display:flex;align-items:center;gap:8px;padding:5px;border:1px dashed var(--tt-border);border-radius:8px;background:var(--tt-control)}
+    #tt-split-tool .tt-file-pick{padding:6px 10px;font-size:12.5px;white-space:nowrap}
+    #tt-split-tool .tt-file-name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--tt-muted-fg);font-size:12.5px}
+    #tt-split-tool .tt-file.tt-has-image .tt-file-name{color:var(--tt-fg)}
+    #tt-split-tool .tt-file-clear{padding:4px 9px;font-size:12px}
+    #tt-split-tool .tt-preview{display:grid;min-width:0;position:sticky;top:12px}
+    #tt-split-tool .tt-canvas-wrap{background:var(--tt-panel);border:1px solid var(--tt-border);border-radius:12px;padding:10px;overflow:hidden;box-shadow:0 12px 30px rgba(0,0,0,.2);display:flex;justify-content:center;transition:border-color .12s}
+    #tt-split-tool.tt-dragging .tt-canvas-wrap{border-color:var(--tt-focus);box-shadow:0 0 0 2px var(--tt-focus)}
+    #tt-split-tool canvas{display:block;max-width:100%;max-height:74vh;width:auto;height:auto;background:#202227;touch-action:none;cursor:grab;border-radius:3px;box-shadow:0 0 0 1px rgba(255,255,255,.18)}
+    #tt-split-tool .tt-export{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:10px}
+    #tt-split-tool .tt-export input{flex:1;min-width:140px}
+    #tt-split-tool .tt-export button{white-space:nowrap}
+    #tt-split-tool .tt-dims{color:var(--tt-muted-fg);font-size:12px;white-space:nowrap}
+    #tt-split-tool .tt-toast{position:fixed;left:50%;bottom:22px;transform:translate(-50%,12px);background:#232830;color:var(--tt-fg);border:1px solid var(--tt-border);border-radius:10px;padding:9px 14px;font-size:13px;max-width:min(560px,calc(100vw - 32px));box-shadow:0 10px 30px rgba(0,0,0,.4);opacity:0;pointer-events:none;transition:opacity .18s,transform .18s;z-index:10}
+    #tt-split-tool .tt-toast.tt-show{opacity:1;transform:translate(-50%,0)}
+    #tt-split-tool .tt-toast[data-tone="error"]{border-color:var(--tt-accent);background:#3a1d1f}
+    #tt-split-tool kbd{font:11px ui-monospace,SFMono-Regular,Menlo,monospace;border:1px solid var(--tt-border);border-bottom-width:2px;border-radius:4px;padding:0 4px;color:var(--tt-fg)}
+    @media(max-width:900px){#tt-split-tool{padding:12px;box-shadow:none}#tt-split-tool .tt-layout{grid-template-columns:1fr}#tt-split-tool .tt-preview{position:static;order:-1}}
+    @media(max-width:600px){#tt-split-tool{border-radius:0}}
+  </style>
+
+  <header class="tt-appbar">
+    <div class="tt-brand"><strong>TVNZ+ Split Image</strong><span>Two images, one frame · <a href="index.html">Full thumbnail builder</a></span></div>
+  </header>
+
+  <section class="tt-layout">
+    <div class="tt-controls">
+      <section class="tt-card">
+        <h3>Images</h3>
+        <div class="tt-field" style="margin-top:0"><span class="tt-label" data-side-label="img1">Image 1 (left)</span>
+          <div class="tt-file" data-file="img1"><button type="button" class="tt-file-pick">Choose image…</button><span class="tt-file-name"></span><button type="button" class="tt-file-clear" title="Remove image" aria-label="Remove image">✕</button><input type="file" accept="image/*,.heic,.heif" hidden></div>
+        </div>
+        <div class="tt-field"><span class="tt-label" data-side-label="img2">Image 2 (right)</span>
+          <div class="tt-file" data-file="img2"><button type="button" class="tt-file-pick">Choose image…</button><span class="tt-file-name"></span><button type="button" class="tt-file-clear" title="Remove image" aria-label="Remove image">✕</button><input type="file" accept="image/*,.heic,.heif" hidden></div>
+        </div>
+        <button id="tt-swap" type="button">⇄ Swap images</button>
+        <p class="tt-hint">Drop or paste (<kbd>⌘</kbd>/<kbd>Ctrl</kbd>+<kbd>V</kbd>) images anywhere. Drop two at once to fill both sides.</p>
+      </section>
+
+      <section class="tt-card">
+        <h3>Split</h3>
+        <div class="tt-seg" role="group" aria-label="Split direction">
+          <button type="button" data-orient="v" aria-pressed="true"><svg viewBox="0 0 16 12" aria-hidden="true"><rect x=".5" y=".5" width="15" height="11" rx="1.5" fill="none" stroke="currentColor"/><path d="M8 1v10" stroke="currentColor" stroke-width="1.5"/></svg>Side by side</button>
+          <button type="button" data-orient="h" aria-pressed="false"><svg viewBox="0 0 16 12" aria-hidden="true"><rect x=".5" y=".5" width="15" height="11" rx="1.5" fill="none" stroke="currentColor"/><path d="M1 6h14" stroke="currentColor" stroke-width="1.5"/></svg>Top &amp; bottom</button>
+        </div>
+        <div class="tt-field"><label for="tt-pos">Divider position <span data-value="pos">50</span>%</label><input id="tt-pos" data-bind="pos" type="range" min="5" max="95" step="0.5" value="50"></div>
+        <div class="tt-field"><label for="tt-angle">Divider angle <span data-value="angle">0</span>°</label><input id="tt-angle" data-bind="angle" type="range" min="-30" max="30" step="0.5" value="0"></div>
+        <div class="tt-row-2">
+          <div class="tt-field"><label for="tt-line">Divider line <span data-value="lineWidth">0</span>px</label><input id="tt-line" data-bind="lineWidth" type="range" min="0" max="40" value="0"></div>
+          <div class="tt-field"><label for="tt-line-colour">Line colour</label><input id="tt-line-colour" type="color" value="#ffffff"></div>
+        </div>
+        <p class="tt-hint">Double-click a slider to reset it.</p>
+      </section>
+
+      <section class="tt-card">
+        <h3>Output</h3>
+        <select id="tt-size" aria-label="Output size">
+          <option value="1920x1080">16:9 · 1920 × 1080</option>
+          <option value="2198x1239">CTV · 2198 × 1239</option>
+          <option value="1080x1080">Square · 1080 × 1080</option>
+          <option value="1080x1350">Portrait 4:5 · 1080 × 1350</option>
+          <option value="1080x1920">Vertical 9:16 · 1080 × 1920</option>
+          <option value="1967x501">Banner · 1967 × 501</option>
+          <option value="custom">Custom…</option>
+        </select>
+        <div class="tt-row-2 tt-hidden" id="tt-custom-size" style="margin-top:8px">
+          <div class="tt-field"><label for="tt-w">Width</label><input id="tt-w" type="number" min="100" max="8000" value="1920"></div>
+          <div class="tt-field"><label for="tt-h">Height</label><input id="tt-h" type="number" min="100" max="8000" value="1080"></div>
+        </div>
+        <div class="tt-field"><span class="tt-label">Background — fills anywhere an image doesn't cover</span>
+          <div class="tt-seg" role="group" aria-label="Background">
+            <button type="button" data-bg="black" aria-pressed="true"><span class="tt-swatch" style="background:#000"></span>Black</button>
+            <button type="button" data-bg="white" aria-pressed="false"><span class="tt-swatch" style="background:#fff"></span>White</button>
+            <button type="button" data-bg="custom" aria-pressed="false"><span class="tt-swatch" id="tt-bg-custom-swatch" style="background:#cc3333"></span>Colour</button>
+            <button type="button" data-bg="transparent" aria-pressed="false"><span class="tt-swatch tt-swatch-none"></span>Transparent</button>
+          </div>
+          <input id="tt-bg-colour" type="color" value="#cc3333" aria-label="Background colour" class="tt-hidden">
+        </div>
+      </section>
+
+      <div><button id="tt-reset" class="tt-quiet" type="button">↺ Start over</button></div>
+    </div>
+
+    <div class="tt-preview">
+      <div class="tt-canvas-wrap"><canvas id="tt-canvas" width="1920" height="1080" tabindex="0" aria-label="Split image preview. Drag to crop, scroll to zoom, drag the divider to move it."></canvas></div>
+      <div class="tt-export"><span class="tt-dims" id="tt-dims">1920 × 1080</span><input id="tt-filename" type="text" value="tvnz-split.png" aria-label="File name" spellcheck="false"><button id="tt-download" class="tt-primary" title="Download PNG (⌘/Ctrl+S)">Download PNG</button></div>
+      <p class="tt-hint tt-bg-hint" id="tt-bg-hint" hidden><span class="tt-swatch" id="tt-bg-hint-swatch"></span><span id="tt-bg-hint-text"></span></p>
+      <p class="tt-hint">Drag an image to crop it · scroll to zoom · drag the divider to move it · double-click to reset · click an image then use arrow keys to nudge (<kbd>Shift</kbd> for bigger steps).</p>
+    </div>
+  </section>
+
+  <div class="tt-toast" id="tt-toast" role="status" aria-live="polite"></div>
+
+  <script>
+  (()=>{
+    const root=document.getElementById('tt-split-tool');
+    const $=s=>root.querySelector(s),$$=s=>[...root.querySelectorAll(s)];
+    const clamp=(v,lo,hi)=>Math.max(lo,Math.min(hi,v));
+    const canvas=$('#tt-canvas'),ctx=canvas.getContext('2d');
+
+    const toastEl=$('#tt-toast');let toastTimer;
+    function toast(message,tone='info'){toastEl.textContent=message;toastEl.dataset.tone=tone;toastEl.classList.add('tt-show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>toastEl.classList.remove('tt-show'),tone==='error'?7000:2600)}
+
+    // --- state ---
+    const freshImage=()=>({image:null,url:null,name:'',x:0,y:0,scale:100});
+    const defaultState=()=>({img1:freshImage(),img2:freshImage(),orient:'v',pos:50,angle:0,lineWidth:0,lineColour:'#ffffff',bg:'black',bgCustom:'#cc3333'});
+    let state=defaultState();
+    let hover=null,selected=null,drag=null;
+    const W=()=>canvas.width,H=()=>canvas.height;
+    const fmt=v=>String(Math.round(v*10)/10);
+    function syncControls(keys){keys.forEach(k=>{$$(`[data-bind="${k}"]`).forEach(el=>el.value=state[k]);$$(`[data-value="${k}"]`).forEach(el=>el.textContent=fmt(state[k]))})}
+
+    // --- divider geometry ---
+    // Vertical split: divider x as a function of y. Horizontal split: divider y as a function of x.
+    // `side(px,py)` is the signed distance past the divider; positive means image 2.
+    const tanA=()=>Math.tan(state.angle*Math.PI/180);
+    const divX=py=>state.pos/100*W()+tanA()*(H()/2-py);
+    const divY=px=>state.pos/100*H()-tanA()*(W()/2-px);
+    const side=(px,py)=>state.orient==='v'?px-divX(py):py-divY(px);
+    function dividerEnds(){return state.orient==='v'?[[divX(0),0],[divX(H()),H()]]:[[0,divY(0)],[W(),divY(W())]]}
+    function region2(){const [[ax,ay],[bx,by]]=dividerEnds();return state.orient==='v'?[[ax,ay],[W(),0],[W(),H()],[bx,by]]:[[ax,ay],[bx,by],[W(),H()],[0,H()]]}
+    function regionCentre(key){const [[ax,ay],[bx,by]]=dividerEnds(),mx=(ax+bx)/2,my=(ay+by)/2;if(state.orient==='v')return key==='img1'?[mx/2,H()/2]:[(mx+W())/2,H()/2];return key==='img1'?[W()/2,my/2]:[W()/2,(my+H())/2]}
+
+    // --- drawing ---
+    function coverRect(img,w,h,c){const s=Math.max(w/img.naturalWidth,h/img.naturalHeight)*c.scale/100;const dw=img.naturalWidth*s,dh=img.naturalHeight*s;const cx=(c.x+100)/200*w,cy=(c.y+100)/200*h;return {x:cx-dw/2,y:cy-dh/2,w:dw,h:dh}}
+    const bgColour=()=>({black:'#000000',white:'#ffffff',custom:state.bgCustom,transparent:null})[state.bg];
+    const bgName=()=>({black:'black',white:'white',custom:state.bgCustom,transparent:'transparent'})[state.bg];
+    const isLight=hex=>{const n=parseInt(hex.slice(1),16);return ((n>>16&255)*299+(n>>8&255)*587+(n&255)*114)/1000>150};
+    function region(key){const [a,b]=dividerEnds();if(key==='img2')return region2();return state.orient==='v'?[[0,0],a,b,[0,H()]]:[[0,0],[W(),0],b,a]}
+    function tracePath(points){ctx.beginPath();points.forEach(([px,py],i)=>i?ctx.lineTo(px,py):ctx.moveTo(px,py));ctx.closePath()}
+    // does the image fully cover its side of the divider? (checks the side's bounding box)
+    function covers(key){const t=state[key];if(!t.image)return false;const pts=region(key),xs=pts.map(p=>p[0]),ys=pts.map(p=>p[1]);const r=coverRect(t.image,W(),H(),t);return r.x<=Math.min(...xs)+.5&&r.y<=Math.min(...ys)+.5&&r.x+r.w>=Math.max(...xs)-.5&&r.y+r.h>=Math.max(...ys)-.5}
+    // preview-only fill for uncovered areas: the export background with diagonal hatching over it, or a checkerboard for transparent
+    let patternCache={key:'',pattern:null};
+    function emptyPattern(k){
+      const bg=bgColour(),key=`${bg}|${k.toFixed(2)}`;if(patternCache.key===key)return patternCache.pattern;
+      const size=Math.max(8,Math.round(16*k)),c=document.createElement('canvas');c.width=c.height=size;const x=c.getContext('2d');
+      if(!bg){x.fillStyle='#d6d9de';x.fillRect(0,0,size,size);x.fillStyle='#8a8f98';x.fillRect(0,0,size/2,size/2);x.fillRect(size/2,size/2,size/2,size/2)}
+      else{x.fillStyle=bg;x.fillRect(0,0,size,size);x.strokeStyle=isLight(bg)?'rgba(0,0,0,.28)':'rgba(255,255,255,.28)';x.lineWidth=Math.max(1,1.5*k);x.beginPath();for(const o of [-size,0,size]){x.moveTo(o,size);x.lineTo(o+size,0)}x.stroke()}
+      patternCache={key,pattern:ctx.createPattern(c,'repeat')};return patternCache.pattern;
+    }
+    function drawImageSlot(key,exporting){
+      const w=W(),h=H(),t=state[key],k=w/(canvas.getBoundingClientRect().width||w),bg=bgColour();ctx.save();
+      // image 1 fills the whole frame underneath; only image 2 is clipped, so the divider never shows an anti-aliased seam
+      if(key==='img2'){tracePath(region(key));ctx.clip()}
+      if(exporting){if(bg){ctx.fillStyle=bg;ctx.fillRect(0,0,w,h)}}
+      else{ctx.fillStyle=emptyPattern(k);ctx.fillRect(0,0,w,h)}
+      if(t.image){
+        const r=coverRect(t.image,w,h,t);ctx.drawImage(t.image,r.x,r.y,r.w,r.h);
+        // dashed edge wherever the image stops short of its side
+        if(!exporting&&!covers(key)){ctx.lineWidth=2*k;ctx.setLineDash([7*k,5*k]);ctx.strokeStyle='rgba(0,0,0,.7)';ctx.strokeRect(r.x,r.y,r.w,r.h);ctx.lineDashOffset=6*k;ctx.strokeStyle='rgba(255,255,255,.9)';ctx.strokeRect(r.x,r.y,r.w,r.h)}
+      }
+      else if(!exporting){
+        const [lx,ly]=regionCentre(key),m=Math.min(w,h),big=Math.max(16*k,m/24),small=Math.max(12*k,m/40);
+        const title=key==='img1'?'Image 1':'Image 2',sub='drop, paste or choose';
+        ctx.font=`500 ${small}px system-ui,sans-serif`;const bw=Math.max(ctx.measureText(sub).width,big*3.4)+big*1.4,bh=big+small+big*1.1;
+        ctx.fillStyle='rgba(17,19,24,.82)';ctx.beginPath();ctx.roundRect?ctx.roundRect(lx-bw/2,ly-bh/2,bw,bh,big*.4):ctx.rect(lx-bw/2,ly-bh/2,bw,bh);ctx.fill();
+        ctx.fillStyle='#fff';ctx.textAlign='center';ctx.textBaseline='middle';ctx.font=`600 ${big}px system-ui,sans-serif`;ctx.fillText(title,lx,ly-small*.6);
+        ctx.fillStyle='rgba(255,255,255,.7)';ctx.font=`400 ${small}px system-ui,sans-serif`;ctx.fillText(sub,lx,ly+big*.6);
+      }
+      ctx.restore();
+    }
+    function updateBgHint(){
+      const uncovered=['img1','img2'].filter(key=>!covers(key));
+      $('#tt-bg-hint').hidden=!uncovered.length;if(!uncovered.length)return;
+      const sw=$('#tt-bg-hint-swatch');sw.className='tt-swatch'+(state.bg==='transparent'?' tt-swatch-none':'');sw.style.background=state.bg==='transparent'?'':bgColour();
+      $('#tt-bg-hint-text').textContent=`${state.bg==='transparent'?'Checkered':'Hatched'} areas aren't covered by an image and will export as ${bgName()}. Zoom in or drag the image to fill them, or change the background under Output.`;
+    }
+    function render(exporting=false){
+      ctx.clearRect(0,0,W(),H());drawImageSlot('img1',exporting);drawImageSlot('img2',exporting);
+      const [[ax,ay],[bx,by]]=dividerEnds();
+      if(state.lineWidth>0){ctx.save();ctx.strokeStyle=state.lineColour;ctx.lineWidth=state.lineWidth;ctx.lineCap='square';ctx.beginPath();ctx.moveTo(ax,ay);ctx.lineTo(bx,by);ctx.stroke();ctx.restore()}
+      if(exporting)return;
+      updateBgHint();
+      const focus=drag?drag.mode:hover;
+      if(focus==='divider'){const k=W()/canvas.getBoundingClientRect().width||1;ctx.save();ctx.strokeStyle='rgba(255,255,255,.9)';ctx.lineWidth=3*k;ctx.setLineDash([8*k,6*k]);ctx.beginPath();ctx.moveTo(ax,ay);ctx.lineTo(bx,by);ctx.stroke();ctx.restore()}
+    }
+
+    // --- image loading ---
+    const resetFraming=t=>Object.assign(t,{x:0,y:0,scale:100});
+    // HEIC/HEIF (iPhone photos): Safari opens these natively; other browsers get them converted by the
+    // vendored heic2any library, which is only loaded the first time it's needed.
+    const isHeic=f=>/\.hei[cf]$/i.test(f.name||'')||/^image\/hei[cf]/i.test(f.type||'');
+    const isImageFile=f=>f&&(!f.type||f.type.startsWith('image/')||isHeic(f));
+    function decodeBlob(blob){return new Promise((resolve,reject)=>{const url=URL.createObjectURL(blob),img=new Image();img.onload=()=>resolve({img,url});img.onerror=()=>{URL.revokeObjectURL(url);reject(new Error('decode'))};img.src=url})}
+    let heicLib=null;
+    function loadHeicLib(){return heicLib||(heicLib=new Promise((resolve,reject)=>{const s=document.createElement('script');s.src='assets/vendor/heic2any.min.js';s.onload=()=>window.heic2any?resolve(window.heic2any):reject(new Error('heic-lib'));s.onerror=()=>{heicLib=null;s.remove();reject(new Error('heic-lib'))};document.head.appendChild(s)}))}
+    async function decodeImageFile(file){
+      try{return await decodeBlob(file)}catch(error){if(!isHeic(file))throw error}
+      toast(`Converting ${file.name||'HEIC photo'}…`);
+      const convert=await loadHeicLib();
+      let out;try{out=await convert({blob:file,toType:'image/jpeg',quality:.95})}catch{throw new Error('heic-decode')}
+      return decodeBlob(Array.isArray(out)?out[0]:out);
+    }
+    function loadErrorMessage(error,file){
+      const name=file.name||'that image';
+      if(error.message==='heic-lib')return 'Couldn\'t load the HEIC converter (assets/vendor/heic2any.min.js). Keep the assets folder next to this page, or save the photo as JPG.';
+      if(error.message==='heic-decode')return `Couldn't convert ${name}. Try exporting it from Photos as a JPG.`;
+      return `Couldn't open ${name}. Try saving it as a JPG or PNG first.`;
+    }
+    // a slow HEIC conversion must not overwrite an image chosen after it
+    const pendingLoads={};
+    async function loadInto(key,file){
+      if(!isImageFile(file)){toast('That file isn\'t an image. Use a JPG, PNG, WebP or HEIC.','error');return}
+      const token=pendingLoads[key]={};
+      let result;
+      try{result=await decodeImageFile(file)}catch(error){if(pendingLoads[key]===token)toast(loadErrorMessage(error,file),'error');return}
+      if(pendingLoads[key]!==token){URL.revokeObjectURL(result.url);return}
+      const {img,url}=result;
+      const t=state[key];if(t.url)URL.revokeObjectURL(t.url);Object.assign(t,{image:img,url,name:file.name||'Pasted image'});resetFraming(t);updateFileLabels();render();toast(`Loaded ${t.name}`);
+    }
+    function clearSlot(key){const t=state[key];if(t.url)URL.revokeObjectURL(t.url);state[key]=freshImage();updateFileLabels();render()}
+    function updateFileLabels(){
+      $$('[data-file]').forEach(el=>{const t=state[el.dataset.file];el.classList.toggle('tt-has-image',!!t.image);el.querySelector('.tt-file-name').textContent=t.image?t.name:'No image yet';el.querySelector('.tt-file-name').title=t.name;el.querySelector('.tt-file-clear').hidden=!t.image;el.querySelector('.tt-file-pick').textContent=t.image?'Replace…':'Choose image…'});
+      $('[data-side-label="img1"]').textContent=state.orient==='v'?'Image 1 (left)':'Image 1 (top)';
+      $('[data-side-label="img2"]').textContent=state.orient==='v'?'Image 2 (right)':'Image 2 (bottom)';
+    }
+    $$('[data-file]').forEach(el=>{const input=el.querySelector('input[type="file"]');el.querySelector('.tt-file-pick').onclick=()=>input.click();input.onchange=()=>{if(input.files[0])loadInto(el.dataset.file,input.files[0]);input.value=''};el.querySelector('.tt-file-clear').onclick=()=>clearSlot(el.dataset.file)});
+    // where a dropped/pasted image goes when no position is given: the selected side, else the first empty side
+    const nextSlot=()=>selected==='img2'||(selected!=='img1'&&state.img1.image&&!state.img2.image)?'img2':'img1';
+    function routeFiles(files,point){
+      files=files.filter(isImageFile);
+      if(!files.length){toast('That isn\'t an image file.','error');return}
+      if(files.length>1){loadInto('img1',files[0]);loadInto('img2',files[1]);return}
+      loadInto(point?(side(point.px,point.py)>0?'img2':'img1'):nextSlot(),files[0]);
+    }
+    const hasFiles=e=>e.dataTransfer&&[...e.dataTransfer.types].includes('Files');
+    let dragDepth=0;
+    // catch drops anywhere on the page, so a missed drop never navigates away and loses work
+    window.addEventListener('dragenter',e=>{if(hasFiles(e)){dragDepth++;root.classList.add('tt-dragging')}});
+    window.addEventListener('dragleave',e=>{if(hasFiles(e)&&--dragDepth<=0){dragDepth=0;root.classList.remove('tt-dragging')}});
+    window.addEventListener('dragover',e=>{if(hasFiles(e)){e.preventDefault();e.dataTransfer.dropEffect='copy'}});
+    window.addEventListener('drop',e=>{if(!hasFiles(e))return;e.preventDefault();dragDepth=0;root.classList.remove('tt-dragging');routeFiles([...e.dataTransfer.files],e.target===canvas?canvasPoint(e):null)});
+    document.addEventListener('paste',e=>{
+      if(e.target.matches&&e.target.matches('input[type="text"],input[type="number"]')&&e.clipboardData&&[...e.clipboardData.types].includes('text/plain'))return;
+      const files=[...(e.clipboardData?.items||[])].filter(i=>i.kind==='file'&&i.type.startsWith('image/')).map(i=>i.getAsFile());
+      if(!files.length)return;e.preventDefault();routeFiles(files.slice(0,1),null);
+    });
+
+    // --- controls ---
+    $$('[data-bind]').forEach(el=>el.addEventListener('input',()=>{state[el.dataset.bind]=+el.value;syncControls([el.dataset.bind]);render()}));
+    $$('input[type="range"]').forEach(el=>{el.title=el.title||'Double-click to reset';el.addEventListener('dblclick',()=>{el.value=el.defaultValue;el.dispatchEvent(new Event('input',{bubbles:true}))})});
+    $('#tt-line-colour').addEventListener('input',e=>{state.lineColour=e.target.value;if(!state.lineWidth){state.lineWidth=8;syncControls(['lineWidth'])}render()});
+    function setOrient(o){state.orient=o;$$('[data-orient]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.orient===o)));updateFileLabels();render()}
+    $$('[data-orient]').forEach(b=>b.onclick=()=>setOrient(b.dataset.orient));
+    function setBg(mode){state.bg=mode;$$('[data-bg]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.bg===mode)));$('#tt-bg-colour').classList.toggle('tt-hidden',mode!=='custom');$('#tt-bg-colour').value=state.bgCustom;$('#tt-bg-custom-swatch').style.background=state.bgCustom;render()}
+    $$('[data-bg]').forEach(b=>b.onclick=()=>{setBg(b.dataset.bg);if(b.dataset.bg==='custom')try{$('#tt-bg-colour').showPicker()}catch{}});
+    $('#tt-bg-colour').addEventListener('input',e=>{state.bgCustom=e.target.value;$('#tt-bg-custom-swatch').style.background=state.bgCustom;render()});
+    $('#tt-swap').onclick=()=>{[state.img1,state.img2]=[state.img2,state.img1];updateFileLabels();render()};
+
+    function setSize(w,h){w=clamp(Math.round(w)||1920,100,8000);h=clamp(Math.round(h)||1080,100,8000);canvas.width=w;canvas.height=h;$('#tt-dims').textContent=`${w} × ${h}`;$('#tt-w').value=w;$('#tt-h').value=h;render()}
+    $('#tt-size').addEventListener('change',e=>{const v=e.target.value;$('#tt-custom-size').classList.toggle('tt-hidden',v!=='custom');if(v!=='custom'){const [w,h]=v.split('x').map(Number);setSize(w,h)}});
+    ['#tt-w','#tt-h'].forEach(s=>$(s).addEventListener('change',()=>setSize(+$('#tt-w').value,+$('#tt-h').value)));
+
+    $('#tt-reset').onclick=()=>{
+      if(!confirm('Start over? This clears both images and all split settings.'))return;
+      [state.img1,state.img2].forEach(t=>t.url&&URL.revokeObjectURL(t.url));
+      state=defaultState();selected=null;$('#tt-line-colour').value=state.lineColour;syncControls(['pos','angle','lineWidth']);setBg(state.bg);setOrient('v');updateFileLabels();toast('Reset');
+    };
+
+    // --- direct manipulation ---
+    function canvasPoint(e){const r=canvas.getBoundingClientRect();const k=canvas.width/r.width;return {px:(e.clientX-r.left)*k,py:(e.clientY-r.top)*k,k}}
+    function targetAt(px,py,k=1){
+      const d=side(px,py),perp=d*Math.cos(state.angle*Math.PI/180);
+      if(Math.abs(perp)<=Math.max(10,state.lineWidth/2/k+4)*k)return 'divider';
+      return d>0?'img2':'img1';
+    }
+    function panBy(t,dx,dy){t.x=clamp(t.x+dx/W()*200,-100,100);t.y=clamp(t.y+dy/H()*200,-100,100)}
+    function zoomAt(t,factor,px,py){const old=t.scale,next=clamp(old*factor,25,400);if(next===old)return;const k=next/old,cx=(t.x+100)/200*W(),cy=(t.y+100)/200*H();t.scale=next;t.x=clamp((px-(px-cx)*k)/W()*200-100,-100,100);t.y=clamp((py-(py-cy)*k)/H()*200-100,-100,100)}
+    function moveTarget(mode,dx,dy){
+      if(mode==='divider'){state.pos=clamp(state.pos+(state.orient==='v'?dx/W():dy/H())*100,5,95);syncControls(['pos'])}
+      else panBy(state[mode],dx,dy);
+    }
+    const wheelFactor=e=>Math.exp(-clamp(e.deltaY*(e.deltaMode===1?16:e.deltaMode===2?400:1),-150,150)*0.0015);
+    const cursorFor=mode=>mode==='divider'?(state.orient==='v'?'ew-resize':'ns-resize'):drag?'grabbing':'grab';
+    canvas.addEventListener('pointerdown',e=>{if(e.button!==0)return;const {px,py,k}=canvasPoint(e);const mode=targetAt(px,py,k);drag={mode,x:e.clientX,y:e.clientY};if(mode!=='divider')selected=mode;canvas.setPointerCapture(e.pointerId);canvas.focus({preventScroll:true});canvas.style.cursor=cursorFor(mode);render()});
+    canvas.addEventListener('pointermove',e=>{
+      const {px,py,k}=canvasPoint(e);
+      if(!drag){const mode=targetAt(px,py,k);canvas.style.cursor=cursorFor(mode);const next=mode==='divider'?mode:null;if(next!==hover){hover=next;render()}return}
+      moveTarget(drag.mode,(e.clientX-drag.x)*k,(e.clientY-drag.y)*k);drag.x=e.clientX;drag.y=e.clientY;render();
+    });
+    const endDrag=()=>{if(!drag)return;drag=null;canvas.style.cursor=cursorFor(hover);render()};
+    canvas.addEventListener('pointerup',endDrag);canvas.addEventListener('pointercancel',endDrag);
+    canvas.addEventListener('pointerleave',()=>{if(!drag&&hover){hover=null;render()}});
+    canvas.addEventListener('wheel',e=>{e.preventDefault();const {px,py}=canvasPoint(e);zoomAt(state[side(px,py)>0?'img2':'img1'],wheelFactor(e),px,py);render()},{passive:false});
+    canvas.addEventListener('dblclick',e=>{const {px,py,k}=canvasPoint(e);const mode=targetAt(px,py,k);if(mode==='divider'){state.pos=50;state.angle=0;syncControls(['pos','angle'])}else resetFraming(state[mode]);render()});
+    canvas.addEventListener('keydown',e=>{
+      const mode=selected||'img1',step=e.shiftKey?20:2;
+      const moves={ArrowLeft:[-step,0],ArrowRight:[step,0],ArrowUp:[0,-step],ArrowDown:[0,step]};
+      if(moves[e.key]){e.preventDefault();moveTarget(mode,...moves[e.key]);render()}
+      else if(e.key==='+'||e.key==='='){e.preventDefault();zoomAt(state[mode],1.03,W()/2,H()/2);render()}
+      else if(e.key==='-'||e.key==='_'){e.preventDefault();zoomAt(state[mode],1/1.03,W()/2,H()/2);render()}
+    });
+
+    // --- export ---
+    function safeName(name,fallback){name=(name||'').trim().replace(/[\\/:*?"<>|]+/g,'-')||fallback;return /\.png$/i.test(name)?name:name+'.png'}
+    function download(){
+      const missing=!state.img1.image&&!state.img2.image?'No images have been added':!state.img1.image||!state.img2.image?'One side has no image':'';
+      if(missing&&!confirm(`${missing}. Download anyway?`))return;
+      const name=safeName($('#tt-filename').value,'tvnz-split');
+      render(true);toast('Preparing PNG…');
+      try{
+        canvas.toBlob(blob=>{
+          if(!blob){toast('Export failed — the browser couldn\'t create the PNG.','error');return}
+          const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),5000);toast(`Downloaded ${name}`);
+        },'image/png');
+      }catch(error){toast(error&&error.name==='SecurityError'?'The browser blocked the download. Open this page through the hosted link or a local web server instead.':`Export failed: ${error.message}`,'error')}
+      render();
+    }
+    $('#tt-download').onclick=download;
+    document.addEventListener('keydown',e=>{if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='s'){e.preventDefault();download()}});
+    window.addEventListener('beforeunload',e=>{if(state.img1.image||state.img2.image){e.preventDefault();e.returnValue=''}});
+
+    window.addEventListener('resize',()=>render());
+    syncControls(['pos','angle','lineWidth']);updateFileLabels();render();
+  })();
+  </script>
+</div>
+</body>
+</html>
